@@ -1,21 +1,44 @@
-
 const { Pool } = require('pg');
 require('dotenv').config();
 
+// Create a pool with explicit connection details
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+  user: process.env.DB_USER || 'postgres',
+  host: process.env.DB_HOST || 'localhost',
+  database: process.env.DB_NAME || 'weather_app_tha',
+  password: process.env.DB_PASSWORD || '123456',
+  port: parseInt(process.env.DB_PORT || '5433'),
 });
 
-pool.query(`
-    CREATE TABLE IF NOT EXISTS saved_locations (
-        id SERIAL PRIMARY KEY,
-        user_id UUID NOT NULL,
-        city_name TEXT NOT NULL,
-        latitude FLOAT NOT NULL,
-        longitude FLOAT NOT NULL,
-        created_at TIMESTAMP DEFAULT NOW()
-    )
-`).then(() => console.log("Database ready"))
-  .catch(err => console.error(err));
+// Global flag to track database connection status
+let isConnected = false;
 
-module.exports = pool;
+// Test the connection and initialize database
+const initDatabase = async () => {
+  try {
+    // Test connection
+    const client = await pool.connect();
+    console.log('PostgreSQL connected: ', client.database);
+    isConnected = true;
+    
+    // Create table if it doesn't exist
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS saved_locations (
+        id SERIAL PRIMARY KEY,
+        city_name TEXT NOT NULL,
+        latitude FLOAT,
+        longitude FLOAT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Database tables initialized');
+    client.release();
+  } catch (err) {
+    console.error('Database connection error:', err.message);
+    isConnected = false;
+  }
+};
+
+const isDatabaseConnected = () => isConnected;
+
+module.exports = { pool, initDatabase, isDatabaseConnected };
