@@ -1,40 +1,42 @@
-# Weather Dashboard
+# Weather Dashboard - Server
 
-This project sets up a weather dashboard using Node.js, Express, PostgreSQL, and Vue 3.
+This is the backend for the Weather Dashboard application.
 
-## 1. Setup Guide
+## Setup
 
-### 1.1 Install Required Tools
+1. Install dependencies:
 
-Make sure you have the following installed:
+   ```
+   npm install
+   ```
 
-- [Node.js](https://nodejs.org/) (Latest LTS version)
-- [Docker](https://www.docker.com/)
-- PostgreSQL (via Docker or Local installation)
+2. Create a `.env` file with the following variables:
 
-### 1.2 Initialize Your Project
+   ```
+   WEATHER_API_KEY=your_openweathermap_api_key
+   DB_CONNECTION_STRING=postgresql://username:password@localhost:5432/weather_app
+   ```
 
-Create a project folder and initialize a new Node.js project:
+3. Start the server:
+   ```
+   npm start
+   ```
 
-```sh
-mkdir weather-dashboard && cd weather-dashboard
-npm init -y
-```
+## API Endpoints
 
-### 1.3 Install Backend Dependencies
+- `GET /`: Test route
+- `GET /api/weather/:city`: Get current weather for a city
+- `GET /api/forecast/:city`: Get 5-day weather forecast for a city
+- `GET /api/locations`: Get all saved locations
+- `POST /api/locations`: Save a new location
+- `DELETE /api/locations/:id`: Delete a saved location
 
-Install Express, PostgreSQL client, dotenv, CORS, and Axios:
+## Database
 
-```sh
-npm install express pg dotenv cors axios
-```
+The application uses PostgreSQL for persistence. Make sure to have PostgreSQL installed and running.
 
-### 1.4 Install Frontend Dependencies
+The `database.js` file handles:
 
-Install Vue 3, Pinia, Vue Router, Axios, and Vuetify:
-
-```sh
-npm install vue@3.5 pinia vue-router axios vuetify
-```
-
-## 2. Running the Project
+- Connection to the database
+- Creating the necessary tables
+- Providing helper functions for CRUD operations
