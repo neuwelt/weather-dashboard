@@ -2,6 +2,22 @@
 
 This is the backend for the Weather Dashboard application.
 
+## Dev Stack
+### Frontend
+- Node.js (ECMAScript)
+- Vue (v3.5)
+- AJAX - Fetch
+
+### Backend
+- Node.js (ECMAScript)
+- Express
+
+### Database
+- pg.js
+- JSON
+- Postgres
+
+
 ## Setup
 
 1. Install dependencies:
