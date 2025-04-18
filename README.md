@@ -10,12 +10,21 @@ This is the backend for the Weather Dashboard application.
 
 ### Backend
 - Node.js (ECMAScript)
+- REST
 - Express
 
 ### Database
 - pg.js
 - JSON
 - Postgres
+
+
+## Dev Environment
+- Repo: https://github.com/osama1994-dotcom/weather-dashboard
+- UI Design: `Figma`
+- REST Client: `Postman`
+- External API in `Express`: https://stackoverflow.com/questions/39301227/external-api-calls-with-express-node-js-and-require-module
+- `Docker` for Postres-dbs
 
 
 ## Setup
