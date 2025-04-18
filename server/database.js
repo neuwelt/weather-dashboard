@@ -6,7 +6,7 @@ const pool = new Pool({
   user: process.env.DB_USER || 'postgres',
   host: process.env.DB_HOST || 'localhost',
   database: process.env.DB_NAME || 'weather_app_tha',
-  password: process.env.DB_PASSWORD || '123456',
+  password: process.env.DB_PASSWORD || '1234567',
   port: parseInt(process.env.DB_PORT || '5433'),
 });
 
