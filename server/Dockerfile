@@ -13,7 +13,6 @@ RUN  npm install
 COPY . .
 # Expose the port 5000
 EXPOSE 5000
-# RUN chown -R node /usr/src/app
 USER node
 # run the start command to serve
 CMD ["npm", "start"]
