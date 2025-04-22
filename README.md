@@ -29,8 +29,25 @@ This is the backend for the Weather Dashboard application.
 - `npm`: Package Manager - v11
 
 
- ## Setup Frontend - client
+## Docker Container
+1. Run docker composer from root
+```
+docker compose up
+```
+This will do the following:
+- create postres, client & server images
+- create and run postres, client & server containers
+- start the server
+- start the postres dbms
+- Note: you have to start the front end manually by running
+```
+npm install
+npm run serve
+```
+The following frontend & backend setups can be ingored.
 
+
+ ## Setup Frontend - client
 1. Install dependences
    ```
    npm install
@@ -57,7 +74,6 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 
 ## Setup Backend - server
-
 1. Install dependencies:
    ```
    npm install
