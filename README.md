@@ -4,19 +4,19 @@ This is the backend for the Weather Dashboard application.
 
 ## Dev Stack
 1. Frontend
-   - Node.js (ECMAScript)
+   - Node.js (v22)
    - Vue (v3.5)
    - AJAX - Fetch
 
 2. Backend
-   - Node.js (ECMAScript)
+   - Node.js
    - REST
    - Express
 
 3. Database
    - pg.js
    - JSON
-   - Postgres
+   - Postgres (v15)
 
 
 ## Dev Environment
@@ -25,6 +25,8 @@ This is the backend for the Weather Dashboard application.
 - REST Client: `Postman`
 - External API in `Express`: https://stackoverflow.com/questions/39301227/external-api-calls-with-express-node-js-and-require-module
 - `Docker` for Postres-dbs
+- `nvm`: Manage NodeJS - v22
+- `npm`: Package Manager - v11
 
 
  ## Setup Frontend - client
@@ -84,7 +86,6 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 The application uses PostgreSQL for persistence. Make sure to have PostgreSQL installed and running.
 
 The `database.js` file handles:
-
 - Connection to the database
 - Creating the necessary tables
 - Providing helper functions for CRUD operations
