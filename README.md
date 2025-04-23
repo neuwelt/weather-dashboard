@@ -30,7 +30,9 @@ This is the backend for the Weather Dashboard application.
 
 
 ## Docker Container
-1. Run docker composer from root
+1. Create .env file in your root
+   - copy and paste the information from the whatsapp group there.
+2. Run docker composer from root
 ```
 docker compose up
 ```
