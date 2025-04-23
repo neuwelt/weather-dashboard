@@ -46,7 +46,7 @@ This will do the following:
 npm install
 npm run serve
 ```
-The following frontend & backend setups can be ingored.
+The frontend & backend setups below can be ingored.
 
 
  ## Setup Frontend - client
