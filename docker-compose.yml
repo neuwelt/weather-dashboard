@@ -9,10 +9,8 @@ services:
       DB_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-    ports:
-      - "${DB_PORT}:${DB_PORT}"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    ports: "${DB_PORT}:${DB_PORT}"
+    volumes: postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
   # Express Backend
@@ -29,8 +27,7 @@ services:
       PGUSER: ${DB_USER}
       PGPASSWORD: ${DB_PASSWORD}
       WEATHER_API_KEY: ${WEATHER_API_KEY}
-    ports:
-      - "${PORT}:${PORT}"
+    ports: "${PORT}:${PORT}"
     restart: unless-stopped
 
   # Vue Frontend
@@ -38,10 +35,8 @@ services:
     build:
       context: ./client
     container_name: weather-ui
-    depends_on:
-      - server
-    ports:
-      - "8080:80"
+    depends_on: server
+    ports: "8080:80"
     restart: unless-stopped
 
 volumes:
