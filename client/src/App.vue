@@ -1,5 +1,11 @@
 <template>
-  <div id="app">
+  <div id="app" :class="{ 'dark': isDark }">
+      <!-- Theme Toggle Button -->
+      <button @click="toggleDark()" class="theme-toggle">
+          <span v-if="isDark">☀️</span>
+          <span v-else>🌙</span>
+      </button>
+
       <!-- First Splash Screen -->
       <div v-if="showSplash" class="splash-screen">
           <h1>🌤️ Weather Dashboard</h1>
@@ -21,6 +27,7 @@
       </div>
 
       <!-- Main content: This should appear only after both splash screens -->
+      
       <div v-if="showMain" class="app" :class="{ 'main-transition': transitioning }">
           <transition name="slide-up">
               <main>
@@ -45,8 +52,10 @@
 
                           <div class="weather-body">
                               <div class="temperature">
-                                  <span class="temp-value">{{ Math.round(weather.main.temp) }}°C</span>
-                                  <span class="feels-like">Feels like: {{ Math.round(weather.main.feels_like) }}°C</span>
+                                <span class="temp-value">{{ Math.round(weather.main.temp) }}°C</span>
+                                <span class="feels-like">Feels like: {{ Math.round(weather.main.feels_like) }}°C</span>
+                                <!-- Toggle Fahrenheit -->
+                                <span class="temp-fahrenheit"> / {{ Math.round(celsiusToFahrenheit(weather.main.temp)) }}°F</span>
                               </div>
 
                               <div class="weather-info">
@@ -75,6 +84,80 @@
                           </div>
                       </div>
 
+                      <!-- Air Pollution Card -->
+                      <div v-if="airPollution" class="pollution-card">
+                          <div class="pollution-header">
+                              <h3>Air Quality</h3>
+                          </div>
+                          
+                          <div 
+                              class="aqi-indicator" 
+                              :style="{ backgroundColor: getAqiColor(airPollution.list[0].main.aqi ) }"
+                          >
+                              <div class="aqi-value">{{ airPollution.list[0].main.aqi }}</div>
+                              <div class="aqi-description">{{ getAqiDescription(airPollution.list[0].main.aqi) }}</div>
+                          </div>
+                          
+                          <div class="pollutants-grid">
+                              <div class="pollutant-item">
+                                  <div class="pollutant-name">PM2.5</div>
+                                  <div class="pollutant-value">{{ airPollution.list[0].components.pm2_5 }} μg/m³</div>
+                              </div>
+                              <div class="pollutant-item">
+                                  <div class="pollutant-name">PM10</div>
+                                  <div class="pollutant-value">{{ airPollution.list[0].components.pm10 }} μg/m³</div>
+                              </div>
+                              <div class="pollutant-item">
+                                  <div class="pollutant-name">O₃</div>
+                                  <div class="pollutant-value">{{ airPollution.list[0].components.o3 }} μg/m³</div>
+                              </div>
+                              <div class="pollutant-item">
+                                  <div class="pollutant-name">NO₂</div>
+                                  <div class="pollutant-value">{{ airPollution.list[0].components.no2 }} μg/m³</div>
+                              </div>
+                              <div class="pollutant-item">
+                                  <div class="pollutant-name">SO₂</div>
+                                  <div class="pollutant-value">{{ airPollution.list[0].components.so2 }} μg/m³</div>
+                              </div>
+                              <div class="pollutant-item">
+                                  <div class="pollutant-name">CO</div>
+                                  <div class="pollutant-value">{{ airPollution.list[0].components.co }} μg/m³</div>
+                              </div>
+                          </div>
+                      </div>
+
+                      <!-- Enhanced 5-Day Forecast -->
+                      <div v-if="forecast && forecast.daily" class="forecast-container">
+                        <h3>5-Day Forecast</h3>
+                        <div class="forecast-list">
+                          <div v-for="(day, index) in forecast.daily.slice(0, 5)" :key="index" class="forecast-day">
+                            <div class="date">{{ formatDate(day.dt * 1000) }}</div>
+                            <img
+                              :src="`https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`"
+                              :alt="day.weather[0].description"
+                              class="forecast-icon"
+                            />
+                            <div class="temp">{{ Math.round(day.temp.day ) }}°C</div>
+                            <div class="description">{{ day.weather[0].description }}</div>
+                            
+                            <div class="forecast-details">
+                              <div class="forecast-detail">
+                                <span class="forecast-detail-label">Humidity:</span>
+                                <span>{{ day.humidity }}%</span>
+                              </div>
+                              <div class="forecast-detail">
+                                <span class="forecast-detail-label">Wind:</span>
+                                <span>{{ day.wind_speed }} m/s</span>
+                              </div>
+                              <div class="forecast-detail">
+                                <span class="forecast-detail-label">Pressure:</span>
+                                <span>{{ day.pressure }} hPa</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                       <div class="saved-locations">
                           <h3>Saved Locations</h3>
                           <div v-if="savedLocations.length === 0" class="no-locations">
@@ -82,9 +165,9 @@
                           </div>
                           <ul v-else class="locations-list">
                               <li v-for="location in savedLocations" :key="location.id" class="location-item">
-                <span class="location-name" @click="loadSavedLocation(location)">
-                  {{ location.city_name }}
-                </span>
+                                <span class="location-name" @click="loadSavedLocation(location)">
+                                  {{ location.city_name }}
+                                </span>
                                   <button @click="deleteLocation(location.id)" class="delete-button">Delete</button>
                               </li>
                           </ul>
@@ -99,8 +182,23 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useWeatherStore } from './stores/weatherStore'
+import { useThemeStore } from './stores/themeStore'
+import './assets/theme.css'
+
+function celsiusToFahrenheit(celsius) {
+  return (celsius * 9) / 5 + 32
+}
+
+function formatDate(timestamp) {
+  const options = { weekday: 'short', month: 'short', day: 'numeric' }
+  return new Date(timestamp).toLocaleDateString(undefined, options)
+}
 
 const weatherStore = useWeatherStore()
+const themeStore = useThemeStore()
+const isDark = computed(() => themeStore.isDark)
+const toggleDark = themeStore.toggleDark
+
 const city = ref('')
 const showSplash = ref(true)
 const showSecondSplash = ref(false)
@@ -108,9 +206,15 @@ const showMain = ref(false)
 const transitioning = ref(false)
 
 const weather = computed(() => weatherStore.currentWeather)
+const forecast = computed(() => weatherStore.forecast)
+const airPollution = computed(() => weatherStore.airPollution)
 const savedLocations = computed(() => weatherStore.savedLocations)
 const isLoading = computed(() => weatherStore.isLoading)
 const error = computed(() => weatherStore.error)
+
+// Helper functions for air pollution
+const getAqiDescription = (aqi) => weatherStore.getAqiDescription(aqi)
+const getAqiColor = (aqi) => weatherStore.getAqiColor(aqi)
 
 onMounted(async () => {
   // Show the first splash screen for 2 seconds
@@ -159,7 +263,7 @@ async function deleteLocation(id) {
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Moranga&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Moranga&display=swap' );
 
 * {
   box-sizing: border-box;
@@ -170,39 +274,12 @@ async function deleteLocation(id) {
 body {
   font-family: 'Moranga', sans-serif;
   line-height: 1.6;
-  color: #333;
-  background-color: #a8d0f7;
-}
-
-.splash-screen {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #a8d0f7;
-  text-align: center;
-}
-
-.splash-search-container {
-  width: 100%;
-  max-width: 500px;
-  padding: 0 1rem;
-}
-
-.splash-search-input {
-  width: 100%;
-  padding: 1rem 1.5rem;
-  border-radius: 9999px;
-  border: none;
-  font-size: 1.2rem;
-  outline: none;
 }
 
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.5s;
 }
-.fade-ente-from, .fade-leave-to {
+.fade-enter-from, .fade-leave-to {
   opacity: 0;
 }
 
@@ -223,7 +300,6 @@ body {
 .app {
   padding: 2rem;
   min-height: 100vh;
-  background-color: #a8d0f7;
 }
 
 .home {
@@ -248,129 +324,51 @@ body {
   outline: none;
 }
 
-.save-button, .delete-button {
-  padding: 0.5rem 1rem;
-  background-color: #333;
-  color: white;
-  border: none;
-  border-radius: 9999px;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.delete-button {
-  background-color: #e74c3c;
-}
-
-.weather-card {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-.weather-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  background-color: #a8d0f7;
-  color: #333;
-}
-
-.weather-body {
-  display: flex;
-  justify-content: space-between;
-  padding: 1.5rem;
-  align-items: center;
-}
-
-.temperature {
+.splash-screen {
   display: flex;
   flex-direction: column;
-}
-
-.temp-value {
-  font-size: 3rem;
-  font-weight: bold;
-}
-
-.feels-like {
-  font-size: 0.875rem;
-  color: #555;
-}
-
-.weather-info {
-  display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-}
-
-.weather-icon {
-  width: 100px;
-  height: 100px;
-}
-
-.weather-description {
-  text-transform: capitalize;
-  font-size: 1.25rem;
-}
-
-.weather-details {
-  display: flex;
-  justify-content: space-around;
-  padding: 1.5rem;
-  background-color: #f8f9fa;
-}
-
-.detail {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.label {
-  font-size: 0.875rem;
-  color: #777;
-}
-
-.value {
-  font-size: 1.25rem;
-  font-weight: bold;
-}
-
-.saved-locations {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-}
-
-.no-locations {
-  color: #777;
+  height: 100vh;
   text-align: center;
-  padding: 1rem;
 }
 
-.locations-list {
-  list-style: none;
-  padding: 0;
+.splash-search-container {
+  width: 100%;
+  max-width: 500px;
+  padding: 0 1rem;
 }
 
-.location-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  border-bottom: 1px solid #eee;
+.splash-search-input {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border-radius: 9999px;
+  border: none;
+  font-size: 1.2rem;
+  outline: none;
 }
 
-.location-name {
+.loading {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+}
+
+.error {
+  text-align: center;
+  padding: 2rem;
+  color: #e74c3c;
+  font-size: 1.2rem;
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
   cursor: pointer;
-  color: #333;
-}
-
-.location-name:hover {
-  text-decoration: underline;
+  z-index: 100;
 }
 </style>
