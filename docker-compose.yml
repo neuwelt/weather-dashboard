@@ -1,4 +1,4 @@
-# version: "3.8"
+version: "3.8"
 
 services:
   # PostgreSQL Database
@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - "${DB_PORT}:${DB_PORT}"
+      - "${DB_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -38,6 +38,8 @@ services:
     build:
       context: ./client
     container_name: weather-ui
+    environment:
+      - VUE_APP_API_URL=http://weather-api:5001
     depends_on:
       - server
     ports:
