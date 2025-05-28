@@ -100,3 +100,17 @@ The `database.js` file handles:
 - Connection to the database
 - Creating the necessary tables
 - Providing helper functions for CRUD operations
+
+### View database in psql terminal
+```
+docker exec -it container_name_or_id bash
+psql -U postgres
+```
+Resource: [text](https://neon.tech/postgresql/postgresql-administration/postgresql-show-databases)
+
+
+
+## Directus CMS
+Listens on [text](http://localhost:8055)
+Email: admin@example.com
+Password: SqoPI4uUScnD
