@@ -36,19 +36,11 @@
       <div v-if="showMain" class="app" :class="{ 'main-transition': transitioning }">
           <transition name="slide-up">
               <main>
-                  <!-- Navigation Menu Bar -->
-                  <div class="menu-bar">
-                      <div class="menu-items">
-                          <div class="menu-item" :class="{ 'active': activeMenu === 'news' }" @click="activeMenu = 'news'">
-                              News
-                          </div>
-                          <div class="menu-item" :class="{ 'active': activeMenu === 'saved' }" @click="activeMenu = 'saved'">
-                              Saved Locations
-                          </div>
-                          <div class="menu-item" :class="{ 'active': activeMenu === 'profile' }" @click="activeMenu = 'profile'">
-                              Profile
-                          </div>
-                      </div>
+                  <!-- Header with profile, web name, and menu -->
+                  <div class="header">
+                      <div class="profile-section">Profile</div>
+                      <div class="web-name">WeatherPress</div>
+                      <button class="menu-button">☰</button>
                   </div>
 
                   <div class="home">
@@ -65,84 +57,45 @@
                       <div v-if="isLoading" class="loading">Loading...</div>
                       <div v-else-if="error" class="error">{{ error }}</div>
 
-                      <div v-else-if="weather" class="weather-card">
-                          <div class="weather-header">
-                              <h2>{{ weather.name }}, {{ weather.sys.country }}</h2>
-                              <button @click="saveLocation" class="save-button">Save Location</button>
-                          </div>
-
-                          <div class="weather-body">
-                              <div class="temperature">
-                                <span class="temp-value">{{ Math.round(weather.main.temp) }}°C</span>
-                                <span class="feels-like">Feels like: {{ Math.round(weather.main.feels_like) }}°C</span>
-                                <!-- Toggle Fahrenheit -->
-                                <span class="temp-fahrenheit"> / {{ Math.round(celsiusToFahrenheit(weather.main.temp)) }}°F</span>
-                              </div>
-
-                              <div class="weather-info">
-                                  <img
-                                          :src="`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`"
-                                          :alt="weather.weather[0].description"
-                                          class="weather-icon"
-                                  />
-                                  <div class="weather-description">{{ weather.weather[0].description }}</div>
-                              </div>
-                          </div>
-
-                          <div class="weather-details">
-                              <div class="detail">
-                                  <span class="label">Humidity:</span>
-                                  <span class="value">{{ weather.main.humidity }}%</span>
-                              </div>
-                              <div class="detail">
-                                  <span class="label">Wind:</span>
-                                  <span class="value">{{ weather.wind.speed }} m/s</span>
-                              </div>
-                              <div class="detail">
-                                  <span class="label">Pressure:</span>
-                                  <span class="value">{{ weather.main.pressure }} hPa</span>
-                              </div>
+                      <!-- Main Weather Block - Updated Layout -->
+                      <div v-else-if="weather" class="main-weather-block">
+                          <img src="./assets/icons/girl-with-fan.png" alt="Weather illustration" class="weather-illustration" />
+                          <div class="weather-info">
+                              <h1 class="city-name">{{ weather.name }}</h1>
+                              <div class="temperature">{{ Math.round(weather.main.temp) }}°C {{ weather.weather[0].main }}</div>
+                              <div class="feels-like">Feels like: {{ Math.round(weather.main.feels_like) }}°C</div>
                           </div>
                       </div>
 
                       <!-- Air Pollution Card -->
-                      <div v-if="airPollution" class="pollution-card">
-                          <div class="pollution-header">
-                              <h3>Air Quality</h3>
+                      <div v-if="airPollution" class="air-pollution">
+                          <h3 class="air-pollution-title">Air Quality</h3>
+                          <div class="air-quality-info">
+                              <p>Air pollution: {{ getAqiDescription(airPollution.list[0].main.aqi) }}</p>
+                              <p>Air quality is fine, but sensitive groups may feel some effects over time.</p>
                           </div>
-                          
-                          <div 
-                              class="aqi-indicator" 
-                              :style="{ backgroundColor: getAqiColor(airPollution.list[0].main.aqi ) }"
-                          >
-                              <div class="aqi-value">{{ airPollution.list[0].main.aqi }}</div>
-                              <div class="aqi-description">{{ getAqiDescription(airPollution.list[0].main.aqi) }}</div>
+                      </div>
+
+                      <!-- Weather Details Section -->
+                      <div class="weather-details">
+                          <!-- 5-Day Forecast Slider -->
+                          <div class="forecast-section">
+                              <WeatherSlider v-if="forecast && forecast.daily" :forecast="forecast.daily.slice(0, 5)" />
                           </div>
-                          
-                          <div class="pollutants-grid">
-                              <div class="pollutant-item">
-                                  <div class="pollutant-name">PM2.5</div>
-                                  <div class="pollutant-value">{{ airPollution.list[0].components.pm2_5 }} μg/m³</div>
+
+                          <!-- Humidity, Wind, Pressure -->
+                          <div class="humidity-wind-pressure">
+                              <div class="detail-item">
+                                  <span class="detail-label">Humidity:</span>
+                                  <span>{{ weather?.main.humidity }}%</span>
                               </div>
-                              <div class="pollutant-item">
-                                  <div class="pollutant-name">PM10</div>
-                                  <div class="pollutant-value">{{ airPollution.list[0].components.pm10 }} μg/m³</div>
+                              <div class="detail-item">
+                                  <span class="detail-label">Wind:</span>
+                                  <span>{{ weather?.wind.speed }} km/h</span>
                               </div>
-                              <div class="pollutant-item">
-                                  <div class="pollutant-name">O₃</div>
-                                  <div class="pollutant-value">{{ airPollution.list[0].components.o3 }} μg/m³</div>
-                              </div>
-                              <div class="pollutant-item">
-                                  <div class="pollutant-name">NO₂</div>
-                                  <div class="pollutant-value">{{ airPollution.list[0].components.no2 }} μg/m³</div>
-                              </div>
-                              <div class="pollutant-item">
-                                  <div class="pollutant-name">SO₂</div>
-                                  <div class="pollutant-value">{{ airPollution.list[0].components.so2 }} μg/m³</div>
-                              </div>
-                              <div class="pollutant-item">
-                                  <div class="pollutant-name">CO</div>
-                                  <div class="pollutant-value">{{ airPollution.list[0].components.co }} μg/m³</div>
+                              <div class="detail-item">
+                                  <span class="detail-label">Pressure:</span>
+                                  <span>{{ weather?.main.pressure }} mb</span>
                               </div>
                           </div>
                       </div>
@@ -159,38 +112,6 @@
                               class="thirty-day-icon"
                             />
                             <div class="thirty-day-temp">{{ Math.round(day.temp.day) }}°C</div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Enhanced 5-Day Forecast -->
-                      <div v-if="forecast && forecast.daily" class="forecast-container">
-                        <h3>5-Day Forecast</h3>
-                        <div class="forecast-list">
-                          <div v-for="(day, index) in forecast.daily.slice(0, 5)" :key="index" class="forecast-day">
-                            <div class="date">{{ formatDate(day.dt * 1000) }}</div>
-                            <img
-                              :src="`https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`"
-                              :alt="day.weather[0].description"
-                              class="forecast-icon"
-                            />
-                            <div class="temp">{{ Math.round(day.temp.day ) }}°C</div>
-                            <div class="description">{{ day.weather[0].description }}</div>
-                            
-                            <div class="forecast-details">
-                              <div class="forecast-detail">
-                                <span class="forecast-detail-label">Humidity:</span>
-                                <span>{{ day.humidity }}%</span>
-                              </div>
-                              <div class="forecast-detail">
-                                <span class="forecast-detail-label">Wind:</span>
-                                <span>{{ day.wind_speed }} m/s</span>
-                              </div>
-                              <div class="forecast-detail">
-                                <span class="forecast-detail-label">Pressure:</span>
-                                <span>{{ day.pressure }} hPa</span>
-                              </div>
-                            </div>
                           </div>
                         </div>
                       </div>
@@ -233,22 +154,6 @@
                               <button class="form-button">Save Changes</button>
                           </div>
                       </div>
-
-                      <!-- Login Page (only shown when activeMenu is 'login') -->
-                      <div v-if="activeMenu === 'login'" class="login-page">
-                          <div class="login-form">
-                              <h3>Login</h3>
-                              <div class="form-group">
-                                  <label class="form-label">Email</label>
-                                  <input type="email" class="form-input" placeholder="Email" />
-                              </div>
-                              <div class="form-group">
-                                  <label class="form-label">Password</label>
-                                  <input type="password" class="form-input" placeholder="Password" />
-                              </div>
-                              <button class="form-button">Login</button>
-                          </div>
-                      </div>
                   </div>
               </main>
           </transition>
@@ -260,11 +165,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useWeatherStore } from './stores/weatherStore'
 import { useThemeStore } from './stores/themeStore'
+import WeatherSlider from './components/WeatherSlider.vue'
 import './assets/theme.css'
-
-function celsiusToFahrenheit(celsius) {
-  return (celsius * 9) / 5 + 32
-}
+import './assets/main.css'
 
 function formatDate(timestamp) {
   const options = { weekday: 'short', month: 'short', day: 'numeric' }
@@ -292,7 +195,6 @@ const error = computed(() => weatherStore.error)
 
 // Helper functions for air pollution
 const getAqiDescription = (aqi) => weatherStore.getAqiDescription(aqi)
-const getAqiColor = (aqi) => weatherStore.getAqiColor(aqi)
 
 onMounted(async () => {
   // Show the first splash screen for 2 seconds
@@ -321,18 +223,20 @@ async function searchWeather() {
   await weatherStore.fetchWeather(city.value)
 }
 
-async function saveLocation() {
+// eslint-disable-next-line no-unused-vars
+function saveLocation() {
   if (!weather.value) return
-  await weatherStore.saveLocation({
+  weatherStore.saveLocation({
       city_name: weather.value.name,
+      country_code: weather.value.sys.country,
       latitude: weather.value.coord.lat,
       longitude: weather.value.coord.lon
   })
 }
 
 async function loadSavedLocation(location) {
-  city.value = location.city_name
-  await searchWeather()
+  await weatherStore.fetchWeatherByCoords(location.latitude, location.longitude)
+  activeMenu.value = 'news' // Switch back to main view
 }
 
 async function deleteLocation(id) {
@@ -341,133 +245,5 @@ async function deleteLocation(id) {
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: 'Poppins', sans-serif;
-  line-height: 1.6;
-}
-
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-}
-
-.slide-up-enter-active {
-  animation: slide-up 0.8s ease-out forwards;
-}
-@keyframes slide-up {
-  0% {
-      transform: translateY(100px);
-      opacity: 0;
-  }
-  100% {
-      transform: translateY(0);
-      opacity: 1;
-  }
-}
-
-.app {
-  padding: 2rem;
-  min-height: 100vh;
-}
-
-.home {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.search-container {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.search-input {
-  padding: 0.75rem 1.5rem;
-  border-radius: 20px;
-  border: 1px solid var(--border-color);
-  font-size: 1rem;
-  width: 100%;
-  max-width: 400px;
-  outline: none;
-}
-
-.splash-screen {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  text-align: center;
-}
-
-.splash-search-container {
-  width: 100%;
-  max-width: 500px;
-  padding: 0 1rem;
-  margin-top: 2rem;
-}
-
-.splash-search-input {
-  width: 100%;
-  padding: 1rem 1.5rem;
-  border-radius: 20px;
-  border: 1px solid var(--border-color);
-  font-size: 1.2rem;
-  outline: none;
-}
-
-.loading-bar {
-  width: 200px;
-  height: 4px;
-  background-color: #f0f0f0;
-  border-radius: 2px;
-  margin-top: 2rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.loading-bar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 30%;
-  background-color: var(--brand-color-accent);
-  animation: loading 2s infinite ease-in-out;
-}
-
-@keyframes loading {
-  0% {
-    left: -30%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-.loading {
-  text-align: center;
-  padding: 2rem;
-  font-size: 1.2rem;
-}
-
-.error {
-  text-align: center;
-  padding: 2rem;
-  color: #e74c3c;
-  font-size: 1.2rem;
-}
+@import './assets/app-styles.css';
 </style>
