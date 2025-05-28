@@ -1,17 +1,14 @@
 const express = require('express');
 const cors = require('cors');
-const { pool, initDatabase, isDatabaseConnected } = require('./database');
+const { pool, initDatabase, isDatabaseConnected } = require('./database'); // Import the pool from database.js
 require('dotenv').config();
 const path = require('path');
 
 console.log('Loading .env from:', path.resolve(__dirname, '../.env'));
-
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
-//const { pool } = require('./database');  // Import the pool from database.js
-
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
