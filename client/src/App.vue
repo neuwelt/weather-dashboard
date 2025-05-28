@@ -8,12 +8,17 @@
 
       <!-- First Splash Screen -->
       <div v-if="showSplash" class="splash-screen">
-          <h1>🌤️ Weather Dashboard</h1>
-          <p>Loading...</p>
+          <div class="brand">
+              <span class="brand-weather">Weather</span><span class="brand-press">Press</span>
+          </div>
+          <div class="loading-bar"></div>
       </div>
 
       <!-- Second Splash Screen with Search -->
       <div v-if="showSecondSplash" class="splash-screen">
+          <div class="brand">
+              <span class="brand-weather">Weather</span><span class="brand-press">Press</span>
+          </div>
           <transition name="fade">
               <div class="splash-search-container">
                   <input
@@ -31,6 +36,21 @@
       <div v-if="showMain" class="app" :class="{ 'main-transition': transitioning }">
           <transition name="slide-up">
               <main>
+                  <!-- Navigation Menu Bar -->
+                  <div class="menu-bar">
+                      <div class="menu-items">
+                          <div class="menu-item" :class="{ 'active': activeMenu === 'news' }" @click="activeMenu = 'news'">
+                              News
+                          </div>
+                          <div class="menu-item" :class="{ 'active': activeMenu === 'saved' }" @click="activeMenu = 'saved'">
+                              Saved Locations
+                          </div>
+                          <div class="menu-item" :class="{ 'active': activeMenu === 'profile' }" @click="activeMenu = 'profile'">
+                              Profile
+                          </div>
+                      </div>
+                  </div>
+
                   <div class="home">
                       <div class="search-container">
                           <input
@@ -39,6 +59,7 @@
                                   placeholder="Enter city name..."
                                   class="search-input"
                           />
+                          <button @click="searchWeather" class="search-button">Search</button>
                       </div>
 
                       <div v-if="isLoading" class="loading">Loading...</div>
@@ -126,6 +147,22 @@
                           </div>
                       </div>
 
+                      <!-- 30-Day Forecast -->
+                      <div v-if="forecast && forecast.daily" class="thirty-day-forecast">
+                        <h3>30-Day Weather Forecast</h3>
+                        <div class="thirty-day-grid">
+                          <div v-for="(day, index) in forecast.daily" :key="index" class="thirty-day-item">
+                            <div class="thirty-day-date">{{ formatDate(day.dt * 1000) }}</div>
+                            <img
+                              :src="`https://openweathermap.org/img/wn/${day.weather[0].icon}.png`"
+                              :alt="day.weather[0].description"
+                              class="thirty-day-icon"
+                            />
+                            <div class="thirty-day-temp">{{ Math.round(day.temp.day) }}°C</div>
+                          </div>
+                        </div>
+                      </div>
+
                       <!-- Enhanced 5-Day Forecast -->
                       <div v-if="forecast && forecast.daily" class="forecast-container">
                         <h3>5-Day Forecast</h3>
@@ -158,7 +195,8 @@
                         </div>
                       </div>
 
-                      <div class="saved-locations">
+                      <!-- Saved Locations (only shown when activeMenu is 'saved') -->
+                      <div v-if="activeMenu === 'saved'" class="saved-locations">
                           <h3>Saved Locations</h3>
                           <div v-if="savedLocations.length === 0" class="no-locations">
                               No saved locations yet.
@@ -171,6 +209,45 @@
                                   <button @click="deleteLocation(location.id)" class="delete-button">Delete</button>
                               </li>
                           </ul>
+                      </div>
+
+                      <!-- Profile Page (only shown when activeMenu is 'profile') -->
+                      <div v-if="activeMenu === 'profile'" class="profile-page">
+                          <div class="profile-form">
+                              <h3>User Profile</h3>
+                              <div class="form-group">
+                                  <label class="form-label">Username</label>
+                                  <input type="text" class="form-input" placeholder="Username" />
+                              </div>
+                              <div class="form-group">
+                                  <label class="form-label">Email</label>
+                                  <input type="email" class="form-input" placeholder="Email" />
+                              </div>
+                              <div class="form-group">
+                                  <label class="form-label">Preferred Units</label>
+                                  <select class="form-input">
+                                      <option value="metric">Metric (°C)</option>
+                                      <option value="imperial">Imperial (°F)</option>
+                                  </select>
+                              </div>
+                              <button class="form-button">Save Changes</button>
+                          </div>
+                      </div>
+
+                      <!-- Login Page (only shown when activeMenu is 'login') -->
+                      <div v-if="activeMenu === 'login'" class="login-page">
+                          <div class="login-form">
+                              <h3>Login</h3>
+                              <div class="form-group">
+                                  <label class="form-label">Email</label>
+                                  <input type="email" class="form-input" placeholder="Email" />
+                              </div>
+                              <div class="form-group">
+                                  <label class="form-label">Password</label>
+                                  <input type="password" class="form-input" placeholder="Password" />
+                              </div>
+                              <button class="form-button">Login</button>
+                          </div>
                       </div>
                   </div>
               </main>
@@ -204,6 +281,7 @@ const showSplash = ref(true)
 const showSecondSplash = ref(false)
 const showMain = ref(false)
 const transitioning = ref(false)
+const activeMenu = ref('news') // Default active menu
 
 const weather = computed(() => weatherStore.currentWeather)
 const forecast = computed(() => weatherStore.forecast)
@@ -263,7 +341,7 @@ async function deleteLocation(id) {
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Moranga&display=swap' );
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 * {
   box-sizing: border-box;
@@ -272,7 +350,7 @@ async function deleteLocation(id) {
 }
 
 body {
-  font-family: 'Moranga', sans-serif;
+  font-family: 'Poppins', sans-serif;
   line-height: 1.6;
 }
 
@@ -311,16 +389,17 @@ body {
 .search-container {
   display: flex;
   justify-content: center;
+  gap: 0.5rem;
   margin-bottom: 1rem;
 }
 
 .search-input {
   padding: 0.75rem 1.5rem;
-  border-radius: 9999px;
-  border: none;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
   font-size: 1rem;
   width: 100%;
-  max-width: 500px;
+  max-width: 400px;
   outline: none;
 }
 
@@ -337,15 +416,46 @@ body {
   width: 100%;
   max-width: 500px;
   padding: 0 1rem;
+  margin-top: 2rem;
 }
 
 .splash-search-input {
   width: 100%;
   padding: 1rem 1.5rem;
-  border-radius: 9999px;
-  border: none;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
   font-size: 1.2rem;
   outline: none;
+}
+
+.loading-bar {
+  width: 200px;
+  height: 4px;
+  background-color: #f0f0f0;
+  border-radius: 2px;
+  margin-top: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 30%;
+  background-color: var(--brand-color-accent);
+  animation: loading 2s infinite ease-in-out;
+}
+
+@keyframes loading {
+  0% {
+    left: -30%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 
 .loading {
@@ -359,16 +469,5 @@ body {
   padding: 2rem;
   color: #e74c3c;
   font-size: 1.2rem;
-}
-
-.theme-toggle {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  z-index: 100;
 }
 </style>
