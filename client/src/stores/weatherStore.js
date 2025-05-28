@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5001';
+const API_URL = 'http://localhost:5000';
 
 export const useWeatherStore = defineStore('weather', {
   state: ( ) => ({
