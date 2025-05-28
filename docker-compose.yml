@@ -32,6 +32,35 @@ services:
       - "${PORT}:${PORT}"
     restart: unless-stopped
 
+      # Directus CMS
+  directus:
+    image: directus/directus:latest
+    container_name: directus
+    environment:
+      DIRECTUS_DATABASE_CLIENT: postgres
+      DIRECTUS_DATABASE_HOST: ${DB_HOST}
+      DIRECTUS_DATABASE_PORT: ${DB_PORT}
+      DIRECTUS_DATABASE_NAME: ${DB_NAME}
+      DIRECTUS_DATABASE_USER: ${DB_USER}
+      DIRECTUS_DATABASE_PASSWORD: ${DB_PASSWORD}
+      # I run "cat /proc/sys/kernel/random/uuid" twice to generate
+      DIRECTUS_SECRET: ${DIRECTUS_KEY} 
+      DIRECTUS_EMAIL: ${DIRECTUS_EMAIL}
+      DIRECTUS_PASSWORD: ${DIRECTUS_PASSWORD}
+      DIRECTUS_PUBLIC_URL: http://localhost:${CMS_PORT}
+      DB_FILENAME: "/directus/database/data.db"
+      WEBSOCKETS_ENABLED: "true"
+    ports:
+      - "${CMS_PORT}:${CMS_PORT}"
+    volumes:
+      - directus_data:/directus/data
+      # - ./database:/directus/database
+      # - ./uploads:/directus/uploads
+      # - ./extensions:/directus/extensions
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
   # Vue Frontend
   client:
     build:
@@ -47,3 +76,4 @@ services:
 
 volumes:
   postgres_data:
+  directus_data:
