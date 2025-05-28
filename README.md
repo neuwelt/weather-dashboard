@@ -54,22 +54,18 @@ The frontend & backend setups below can be ingored.
    ```
    npm install
    ```
-
 2. Compiles and hot-reloads for development
    ```
    npm run serve
    ```
-
 3. Compiles and minifies for production
    ```
    npm run build
    ```
-
 4. Lints and fixes files
    ```
    npm run lint
    ```
-
 5. Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
@@ -80,18 +76,15 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
    ```
    npm install
    ```
-
 2. Create a `.env` file with the following variables:
    ```
    WEATHER_API_KEY=your_openweathermap_api_key
    DB_CONNECTION_STRING=postgresql://username:password@localhost:5432/weather_app
    ```
-
 3. Start the server:
    ```
    npm start
    ```
-
 ## API Endpoints
 - `GET /`: Test route
 - `GET /api/weather/:city`: Get current weather for a city
