@@ -32,7 +32,7 @@
       </div>
 
       <!-- Main content: This should appear only after both splash screens -->
-
+      
       <div v-if="showMain" class="app" :class="{ 'main-transition': transitioning }">
           <transition name="slide-up">
               <main>
@@ -159,7 +159,6 @@
           </transition>
       </div>
   </div>
-
 </template>
 
 <script setup>
@@ -185,7 +184,6 @@ const showSplash = ref(true)
 const showSecondSplash = ref(false)
 const showMain = ref(false)
 const transitioning = ref(false)
-
 const activeMenu = ref('news') // Default active menu
 
 const weather = computed(() => weatherStore.currentWeather)
@@ -221,8 +219,8 @@ async function handleSplashSearch() {
 }
 
 async function searchWeather() {
-    if (!city.value) return
-    await weatherStore.fetchWeather(city.value)
+  if (!city.value) return
+  await weatherStore.fetchWeather(city.value)
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -242,7 +240,7 @@ async function loadSavedLocation(location) {
 }
 
 async function deleteLocation(id) {
-    await weatherStore.deleteLocation(id)
+  await weatherStore.deleteLocation(id)
 }
 </script>
 
