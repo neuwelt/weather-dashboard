@@ -1,4 +1,5 @@
 const { Pool } = require('pg');
+const path = require('path');
 require('dotenv').config();
 
 // Mock data for when database is not available
@@ -7,13 +8,15 @@ let mockLocationId = 1;
 
 // Create a pool with explicit connection details
 let pool;
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+
 try {
   pool = new Pool({
-    user: process.env.DB_USER || 'postgres',
-    host: process.env.DB_HOST || 'localhost',
-    database: process.env.DB_NAME || 'weather_app_tha',
-    password: process.env.DB_PASSWORD || '1234567',
-    port: parseInt(process.env.DB_PORT || '5433'),
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: parseInt(process.env.DB_PORT, 10),
   });
 } catch (err) {
   console.error('Error creating pool:', err.message);
