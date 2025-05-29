@@ -207,7 +207,7 @@ onMounted(async () => {
     const colorInterval = setInterval(() => {
         colorIndex = (colorIndex + 1) % colors.length
         currentColor.value = colors[colorIndex]
-    }, 300)
+    }, 500)
 
     // Show the first splash screen for 2 seconds
     setTimeout(() => {
