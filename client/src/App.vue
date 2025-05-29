@@ -31,14 +31,14 @@
                         style="border: 2px solid #2D2D2D;"
                     />
                     <div style="text-align: center; margin-top: 20px;">
-                        <button @click="showLoginPage" style="background: none; border: none; color: #2D2D2D; cursor: pointer; text-decoration: underline; font-size: 14px; font-family: 'Comfortaa', sans-serif;">I already have an account</button>
+                        <button @click="showLoginPageFunc" style="background: none; border: none; color: #2D2D2D; cursor: pointer; text-decoration: underline; font-size: 14px; font-family: 'Comfortaa', sans-serif;">I already have an account</button>
                     </div>
                 </div>
             </transition>
         </div>
 
         <!-- Login Page -->
-        <div v-if="showLoginPage" class="login-page" style="background-color: #F8F5EC; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;">
+        <div v-if="showLoginPageState" class="login-page" style="background-color: #F8F5EC; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;">
             <div class="brand" style="text-align: center; margin-bottom: 40px;">
                 <div style="font-size: 3rem; font-weight: bold; color: #333; margin-bottom: 10px;">WeatherPress</div>
                 <div style="font-size: 1.2rem; color: #666;">Welcome back!</div>
@@ -67,17 +67,30 @@
         </div>
 
         <!-- Main content: This should appear only after both splash screens -->
+        <div v-if="showMain" class="app" :class="{ 'main-transition': transitioning }">
+            <!-- Fixed Header -->
+            <div class="fixed-header">
+                <div class="profile-section">Profile</div>
+                <div class="web-name">Weather Press</div>
+                <button @click="toggleMenu" class="menu-button" :class="{ 'menu-active': isMenuOpen }">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
 
-        <div v-if="showMain" class="app" :class="{ 'main-transition': transitioning }" style="background-color: #FFFCF7;">
+            <!-- Full Screen Menu -->
+            <div class="fullscreen-menu" :class="{ 'menu-open': isMenuOpen }">
+                <button @click="closeMenu" class="close-menu-button">×</button>
+                <div class="menu-content">
+                    <div class="menu-item" @click="setActiveMenu('news')">News</div>
+                    <div class="menu-item" @click="setActiveMenu('saved')">Saved Locations</div>
+                    <div class="menu-item" @click="setActiveMenu('profile')">Profile</div>
+                </div>
+            </div>
+
             <transition name="slide-up">
-                <main>
-                    <!-- Header with profile, web name, and menu -->
-                    <div class="header">
-                        <div class="profile-section">Profile</div>
-                        <div class="web-name">WeatherPress</div>
-                        <button class="menu-button">☰</button>
-                    </div>
-
+                <main class="main-content">
                     <div class="home">
                         <div class="search-container">
                             <input
@@ -93,62 +106,58 @@
                         <div v-else-if="error" class="error">{{ error }}</div>
 
                         <!-- Main Weather Block - Updated Layout -->
-                        <div v-else-if="weather" class="main-weather-block">
-                            <img src="./assets/icons/girl-with-fan.png" alt="Weather illustration" class="weather-illustration" />
-                            <div class="weather-info">
+                        <div v-else-if="weather" class="main-weather-container">
+                            <div class="weather-illustration-container">
+                                <img src="./assets/icons/girl-with-fan.png" alt="Weather illustration" class="weather-illustration" />
+                                <div class="air-pollution-info">
+                                    <div class="air-pollution-title">Air pollution: Fair</div>
+                                    <div class="air-pollution-description">Air quality is fine, but sensitive groups may feel some effects over time.</div>
+                                </div>
+                            </div>
+
+                            <div class="main-weather-info">
                                 <h1 class="city-name">{{ weather.name }}</h1>
-                                <div class="temperature">{{ Math.round(weather.main.temp) }}°C {{ weather.weather[0].main }}</div>
-                                <div class="feels-like">Feels like: {{ Math.round(weather.main.feels_like) }}°C</div>
+                                <div class="temperature-main">{{ Math.round(weather.main.temp) }}°C {{ weather.weather[0].main }}</div>
+                                <div class="feels-like-pill">Feels like: {{ Math.round(weather.main.feels_like) }}°C</div>
                             </div>
                         </div>
 
-                        <!-- Air Pollution Card -->
-                        <div v-if="airPollution" class="air-pollution">
-                            <h3 class="air-pollution-title">Air Quality</h3>
-                            <div class="air-quality-info">
-                                <p>Air pollution: {{ getAqiDescription(airPollution.list[0].main.aqi) }}</p>
-                                <p>Air quality is fine, but sensitive groups may feel some effects over time.</p>
+                        <!-- Weather Details Cards -->
+                        <div v-if="weather" class="weather-details-grid">
+                            <!-- Forecast Cards -->
+                            <div class="forecast-cards">
+                                <div class="forecast-card">
+                                    <div class="forecast-date">22 May</div>
+                                    <div class="forecast-temp">22°C</div>
+                                    <div class="forecast-icon">☀️</div>
+                                </div>
+                                <div class="forecast-card">
+                                    <div class="forecast-date">23 May</div>
+                                    <div class="forecast-temp">10°C</div>
+                                    <div class="forecast-icon">☀️</div>
+                                </div>
+                            </div>
+
+                            <!-- Weather Stats Card -->
+                            <div class="weather-stats-card">
+                                <div class="stat-item">
+                                    <span class="stat-label">Humidity:</span>
+                                    <span class="stat-value">{{ weather?.main.humidity }}%</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Wind:</span>
+                                    <span class="stat-value">{{ weather?.wind.speed }} km/h</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Pressure:</span>
+                                    <span class="stat-value">{{ weather?.main.pressure }} mb</span>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Weather Details Section -->
-                        <div class="weather-details">
-                            <!-- 5-Day Forecast Slider -->
-                            <div class="forecast-section">
-                                <WeatherSlider v-if="forecast && forecast.daily" :forecast="forecast.daily.slice(0, 5)" />
-                            </div>
-
-                            <!-- Humidity, Wind, Pressure -->
-                            <div class="humidity-wind-pressure">
-                                <div class="detail-item">
-                                    <span class="detail-label">Humidity:</span>
-                                    <span>{{ weather?.main.humidity }}%</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Wind:</span>
-                                    <span>{{ weather?.wind.speed }} km/h</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Pressure:</span>
-                                    <span>{{ weather?.main.pressure }} mb</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 30-Day Forecast -->
-                        <div v-if="forecast && forecast.daily" class="thirty-day-forecast">
-                            <h3>30-Day Weather Forecast</h3>
-                            <div class="thirty-day-grid">
-                                <div v-for="(day, index) in forecast.daily" :key="index" class="thirty-day-item">
-                                    <div class="thirty-day-date">{{ formatDate(day.dt * 1000) }}</div>
-                                    <img
-                                        :src="`https://openweathermap.org/img/wn/${day.weather[0].icon}.png`"
-                                        :alt="day.weather[0].description"
-                                        class="thirty-day-icon"
-                                    />
-                                    <div class="thirty-day-temp">{{ Math.round(day.temp.day) }}°C</div>
-                                </div>
-                            </div>
+                        <!-- 30-Day Forecast Section -->
+                        <div v-if="forecast && forecast.daily" class="thirty-day-section">
+                            <h3 class="section-title">30 Days Weather</h3>
                         </div>
 
                         <!-- Saved Locations (only shown when activeMenu is 'saved') -->
@@ -159,9 +168,9 @@
                             </div>
                             <ul v-else class="locations-list">
                                 <li v-for="location in savedLocations" :key="location.id" class="location-item">
-                                <span class="location-name" @click="loadSavedLocation(location)">
-                                  {{ location.city_name }}
-                                </span>
+                                    <span class="location-name" @click="loadSavedLocation(location)">
+                                      {{ location.city_name }}
+                                    </span>
                                     <button @click="deleteLocation(location.id)" class="delete-button">Delete</button>
                                 </li>
                             </ul>
@@ -200,14 +209,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { useWeatherStore } from './stores/weatherStore'
 import { useThemeStore } from './stores/themeStore'
-import WeatherSlider from './components/WeatherSlider.vue'
+//import WeatherSlider from './components/WeatherSlider.vue'
 import './assets/theme.css'
 import './assets/main.css'
 
-function formatDate(timestamp) {
-    const options = { weekday: 'short', month: 'short', day: 'numeric' }
-    return new Date(timestamp).toLocaleDateString(undefined, options)
-}
+//function formatDate(timestamp) {
+//    const options = { weekday: 'short', month: 'short', day: 'numeric' }
+//    return new Date(timestamp).toLocaleDateString(undefined, options)
+//}
 
 const weatherStore = useWeatherStore()
 const themeStore = useThemeStore()
@@ -224,19 +233,21 @@ const currentColor = ref('#333')
 const loginEmail = ref('')
 const loginPassword = ref('')
 const loginError = ref('')
+const showLoginPageState = ref(false)
+const isMenuOpen = ref(false)
 
 const colors = ['#333', '#FF8C00', '#4A90E2', '#333']
 let colorIndex = 0
 
 const weather = computed(() => weatherStore.currentWeather)
 const forecast = computed(() => weatherStore.forecast)
-const airPollution = computed(() => weatherStore.airPollution)
+//const airPollution = computed(() => weatherStore.airPollution)
 const savedLocations = computed(() => weatherStore.savedLocations)
 const isLoading = computed(() => weatherStore.isLoading)
 const error = computed(() => weatherStore.error)
 
 // Helper functions for air pollution
-const getAqiDescription = (aqi) => weatherStore.getAqiDescription(aqi)
+//const getAqiDescription = (aqi) => weatherStore.getAqiDescription(aqi)
 
 onMounted(async () => {
     // Start color animation
@@ -286,15 +297,16 @@ function saveLocation() {
 async function loadSavedLocation(location) {
     await weatherStore.fetchWeatherByCoords(location.latitude, location.longitude)
     activeMenu.value = 'news' // Switch back to main view
+    closeMenu()
 }
 
 async function deleteLocation(id) {
     await weatherStore.deleteLocation(id)
 }
 
-function showLoginPage() {
+function showLoginPageFunc() {
     showSecondSplash.value = false
-    showLoginPage.value = true
+    showLoginPageState.value = true
 }
 
 function handleLogin() {
@@ -315,21 +327,412 @@ function handleLogin() {
     // Handle login logic here
     console.log('Login attempt:', loginEmail.value, loginPassword.value)
     // After successful login, go to main page
-    showLoginPage.value = false
+    showLoginPageState.value = false
     showMain.value = true
 }
 
 function goBackToSplash() {
-    showLoginPage.value = false
+    showLoginPageState.value = false
     showSecondSplash.value = true
+}
+
+function toggleMenu() {
+    isMenuOpen.value = !isMenuOpen.value
+}
+
+function closeMenu() {
+    isMenuOpen.value = false
+}
+
+function setActiveMenu(menu) {
+    activeMenu.value = menu
+    closeMenu()
 }
 </script>
 
-<style>
+<style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap');
 @import './assets/app-styles.css';
 
 * {
     font-family: 'Comfortaa', sans-serif !important;
+}
+
+/* Main App Background */
+.app {
+    background: linear-gradient(180deg, #FFFCF7 0%, #FFFCF7 30%, #F7D0D0 67%, #D0E8F2 100%);
+    min-height: 100vh;
+}
+
+/* Fixed Header Styles */
+.fixed-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #FFFCF7;
+    z-index: 1000;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: none;
+    border-bottom: 1px solid rgba(45, 45, 45, 0.1);
+}
+
+.profile-section {
+    font-weight: 500;
+    color: #2D2D2D;
+    font-size: 16px;
+}
+
+.web-name {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #2D2D2D;
+}
+
+/* Main Content */
+.main-content {
+    padding: 100px 20px 40px 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Search Container */
+.search-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.search-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #2D2D2D;
+    border-radius: 8px;
+    background-color: #FFFCF7;
+    color: #2D2D2D;
+    font-family: 'Comfortaa', sans-serif;
+    font-size: 16px;
+}
+
+.search-button {
+    padding: 12px 24px;
+    background-color: #2D2D2D;
+    color: #FFFCF7;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Comfortaa', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* Main Weather Container */
+.main-weather-container {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 40px;
+    align-items: flex-start;
+}
+
+.weather-illustration-container {
+    flex: 0 0 auto;
+}
+
+.weather-illustration {
+    width: 180px;
+    height: 180px;
+    object-fit: contain;
+    margin-bottom: 20px;
+}
+
+.air-pollution-info {
+    max-width: 180px;
+}
+
+.air-pollution-title {
+    font-weight: 600;
+    color: #2D2D2D;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.air-pollution-description {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.main-weather-info {
+    flex: 1;
+    padding-top: 20px;
+}
+
+.city-name {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #2D2D2D;
+    margin: 0 0 10px 0;
+    line-height: 1;
+}
+
+.temperature-main {
+    font-size: 2rem;
+    color: #2D2D2D;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.feels-like-pill {
+    background: linear-gradient(90deg, #D0E8F2 0%, #D0E8F2 100%);
+    color: #2D2D2D;
+    padding: 12px 24px;
+    border-radius: 25px;
+    display: inline-block;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+/* Weather Details Grid */
+.weather-details-grid {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.forecast-cards {
+    display: flex;
+    gap: 15px;
+}
+
+.forecast-card {
+    background: linear-gradient(135deg, #FFFCF7 0%, #F7D0D0 100%);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    min-width: 120px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.forecast-date {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.forecast-temp {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2D2D2D;
+    margin-bottom: 10px;
+}
+
+.forecast-icon {
+    font-size: 1.5rem;
+}
+
+.weather-stats-card {
+    background: linear-gradient(135deg, #F7D0D0 0%, #F7D0D0 100%);
+    padding: 25px;
+    border-radius: 12px;
+    flex: 1;
+    min-width: 300px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.stat-item:last-child {
+    margin-bottom: 0;
+}
+
+.stat-label {
+    color: #2D2D2D;
+    font-weight: 500;
+}
+
+.stat-value {
+    color: #2D2D2D;
+    font-weight: 600;
+}
+
+/* 30 Days Section */
+.thirty-day-section {
+    margin-top: 60px;
+}
+
+.section-title {
+    color: #3B7EA1;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0;
+    text-align: left;
+}
+
+/* Animated Menu Button */
+.menu-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    width: 30px;
+    height: 30px;
+    justify-content: space-around;
+    z-index: 1003;
+    position: relative;
+}
+
+.menu-button span {
+    display: block;
+    height: 3px;
+    width: 100%;
+    background-color: #2D2D2D;
+    border-radius: 1px;
+    transition: all 0.3s ease;
+    transform-origin: center;
+}
+
+.menu-button.menu-active span {
+    background-color: white;
+}
+
+.menu-button.menu-active span:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+}
+
+.menu-button.menu-active span:nth-child(2) {
+    opacity: 0;
+}
+
+.menu-button.menu-active span:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* Full Screen Menu */
+.fullscreen-menu {
+    position: fixed;
+    top: -100vh;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #F28C38 0%, #F9C497 40%, #FCE0C7 62%, #FFFCF7 100%);
+    z-index: 1002;
+    transition: top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-menu.menu-open {
+    top: 0;
+}
+
+.menu-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+
+.menu-item {
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 20px 40px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+}
+
+.menu-item:hover {
+    color: #2D2D2D;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.menu-item:active {
+    transform: translateY(2px);
+}
+
+/* Close Menu Button */
+.close-menu-button {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 3rem;
+    font-weight: 300;
+    cursor: pointer;
+    z-index: 1004;
+    transition: all 0.3s ease;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.close-menu-button:hover {
+    background-color: rgba(255,255,255,0.1);
+    transform: rotate(90deg);
+}
+
+/* Loading and Error States */
+.loading, .error {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #2D2D2D;
+}
+
+.error {
+    color: #c62828;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-weather-container {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+
+    .city-name {
+        font-size: 3rem;
+    }
+
+    .weather-details-grid {
+        flex-direction: column;
+    }
+
+    .forecast-cards {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .city-name {
+        font-size: 2.5rem;
+    }
+
+    .main-content {
+        padding: 100px 15px 40px 15px;
+    }
 }
 </style>
