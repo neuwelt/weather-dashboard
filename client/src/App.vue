@@ -1,13 +1,24 @@
 <template>
-  <div id="app">
+  <div id="app" :class="{ 'dark': isDark }">
+      <!-- Theme Toggle Button -->
+      <button @click="toggleDark()" class="theme-toggle">
+          <span v-if="isDark">☀️</span>
+          <span v-else>🌙</span>
+      </button>
+
       <!-- First Splash Screen -->
       <div v-if="showSplash" class="splash-screen">
-          <h1>🌤️ Weather Dashboard</h1>
-          <p>Loading...</p>
+          <div class="brand">
+              <span class="brand-weather">Weather</span><span class="brand-press">Press</span>
+          </div>
+          <div class="loading-bar"></div>
       </div>
 
       <!-- Second Splash Screen with Search -->
       <div v-if="showSecondSplash" class="splash-screen">
+          <div class="brand">
+              <span class="brand-weather">Weather</span><span class="brand-press">Press</span>
+          </div>
           <transition name="fade">
               <div class="splash-search-container">
                   <input
@@ -21,9 +32,17 @@
       </div>
 
       <!-- Main content: This should appear only after both splash screens -->
+      
       <div v-if="showMain" class="app" :class="{ 'main-transition': transitioning }">
           <transition name="slide-up">
               <main>
+                  <!-- Header with profile, web name, and menu -->
+                  <div class="header">
+                      <div class="profile-section">Profile</div>
+                      <div class="web-name">WeatherPress</div>
+                      <button class="menu-button">☰</button>
+                  </div>
+
                   <div class="home">
                       <div class="search-container">
                           <input
@@ -32,62 +51,108 @@
                                   placeholder="Enter city name..."
                                   class="search-input"
                           />
+                          <button @click="searchWeather" class="search-button">Search</button>
                       </div>
 
                       <div v-if="isLoading" class="loading">Loading...</div>
                       <div v-else-if="error" class="error">{{ error }}</div>
 
-                      <div v-else-if="weather" class="weather-card">
-                          <div class="weather-header">
-                              <h2>{{ weather.name }}, {{ weather.sys.country }}</h2>
-                              <button @click="saveLocation" class="save-button">Save Location</button>
+                      <!-- Main Weather Block - Updated Layout -->
+                      <div v-else-if="weather" class="main-weather-block">
+                          <img src="./assets/icons/girl-with-fan.png" alt="Weather illustration" class="weather-illustration" />
+                          <div class="weather-info">
+                              <h1 class="city-name">{{ weather.name }}</h1>
+                              <div class="temperature">{{ Math.round(weather.main.temp) }}°C {{ weather.weather[0].main }}</div>
+                              <div class="feels-like">Feels like: {{ Math.round(weather.main.feels_like) }}°C</div>
+                          </div>
+                      </div>
+
+                      <!-- Air Pollution Card -->
+                      <div v-if="airPollution" class="air-pollution">
+                          <h3 class="air-pollution-title">Air Quality</h3>
+                          <div class="air-quality-info">
+                              <p>Air pollution: {{ getAqiDescription(airPollution.list[0].main.aqi) }}</p>
+                              <p>Air quality is fine, but sensitive groups may feel some effects over time.</p>
+                          </div>
+                      </div>
+
+                      <!-- Weather Details Section -->
+                      <div class="weather-details">
+                          <!-- 5-Day Forecast Slider -->
+                          <div class="forecast-section">
+                              <WeatherSlider v-if="forecast && forecast.daily" :forecast="forecast.daily.slice(0, 5)" />
                           </div>
 
-                          <div class="weather-body">
-                              <div class="temperature">
-                                  <span class="temp-value">{{ Math.round(weather.main.temp) }}°C</span>
-                                  <span class="feels-like">Feels like: {{ Math.round(weather.main.feels_like) }}°C</span>
+                          <!-- Humidity, Wind, Pressure -->
+                          <div class="humidity-wind-pressure">
+                              <div class="detail-item">
+                                  <span class="detail-label">Humidity:</span>
+                                  <span>{{ weather?.main.humidity }}%</span>
                               </div>
-
-                              <div class="weather-info">
-                                  <img
-                                          :src="`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`"
-                                          :alt="weather.weather[0].description"
-                                          class="weather-icon"
-                                  />
-                                  <div class="weather-description">{{ weather.weather[0].description }}</div>
+                              <div class="detail-item">
+                                  <span class="detail-label">Wind:</span>
+                                  <span>{{ weather?.wind.speed }} km/h</span>
                               </div>
-                          </div>
-
-                          <div class="weather-details">
-                              <div class="detail">
-                                  <span class="label">Humidity:</span>
-                                  <span class="value">{{ weather.main.humidity }}%</span>
-                              </div>
-                              <div class="detail">
-                                  <span class="label">Wind:</span>
-                                  <span class="value">{{ weather.wind.speed }} m/s</span>
-                              </div>
-                              <div class="detail">
-                                  <span class="label">Pressure:</span>
-                                  <span class="value">{{ weather.main.pressure }} hPa</span>
+                              <div class="detail-item">
+                                  <span class="detail-label">Pressure:</span>
+                                  <span>{{ weather?.main.pressure }} mb</span>
                               </div>
                           </div>
                       </div>
 
-                      <div class="saved-locations">
+                      <!-- 30-Day Forecast -->
+                      <div v-if="forecast && forecast.daily" class="thirty-day-forecast">
+                        <h3>30-Day Weather Forecast</h3>
+                        <div class="thirty-day-grid">
+                          <div v-for="(day, index) in forecast.daily" :key="index" class="thirty-day-item">
+                            <div class="thirty-day-date">{{ formatDate(day.dt * 1000) }}</div>
+                            <img
+                              :src="`https://openweathermap.org/img/wn/${day.weather[0].icon}.png`"
+                              :alt="day.weather[0].description"
+                              class="thirty-day-icon"
+                            />
+                            <div class="thirty-day-temp">{{ Math.round(day.temp.day) }}°C</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Saved Locations (only shown when activeMenu is 'saved') -->
+                      <div v-if="activeMenu === 'saved'" class="saved-locations">
                           <h3>Saved Locations</h3>
                           <div v-if="savedLocations.length === 0" class="no-locations">
                               No saved locations yet.
                           </div>
                           <ul v-else class="locations-list">
                               <li v-for="location in savedLocations" :key="location.id" class="location-item">
-                <span class="location-name" @click="loadSavedLocation(location)">
-                  {{ location.city_name }}
-                </span>
+                                <span class="location-name" @click="loadSavedLocation(location)">
+                                  {{ location.city_name }}
+                                </span>
                                   <button @click="deleteLocation(location.id)" class="delete-button">Delete</button>
                               </li>
                           </ul>
+                      </div>
+
+                      <!-- Profile Page (only shown when activeMenu is 'profile') -->
+                      <div v-if="activeMenu === 'profile'" class="profile-page">
+                          <div class="profile-form">
+                              <h3>User Profile</h3>
+                              <div class="form-group">
+                                  <label class="form-label">Username</label>
+                                  <input type="text" class="form-input" placeholder="Username" />
+                              </div>
+                              <div class="form-group">
+                                  <label class="form-label">Email</label>
+                                  <input type="email" class="form-input" placeholder="Email" />
+                              </div>
+                              <div class="form-group">
+                                  <label class="form-label">Preferred Units</label>
+                                  <select class="form-input">
+                                      <option value="metric">Metric (°C)</option>
+                                      <option value="imperial">Imperial (°F)</option>
+                                  </select>
+                              </div>
+                              <button class="form-button">Save Changes</button>
+                          </div>
                       </div>
                   </div>
               </main>
@@ -99,18 +164,37 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useWeatherStore } from './stores/weatherStore'
+import { useThemeStore } from './stores/themeStore'
+import WeatherSlider from './components/WeatherSlider.vue'
+import './assets/theme.css'
+import './assets/main.css'
+
+function formatDate(timestamp) {
+  const options = { weekday: 'short', month: 'short', day: 'numeric' }
+  return new Date(timestamp).toLocaleDateString(undefined, options)
+}
 
 const weatherStore = useWeatherStore()
+const themeStore = useThemeStore()
+const isDark = computed(() => themeStore.isDark)
+const toggleDark = themeStore.toggleDark
+
 const city = ref('')
 const showSplash = ref(true)
 const showSecondSplash = ref(false)
 const showMain = ref(false)
 const transitioning = ref(false)
+const activeMenu = ref('news') // Default active menu
 
 const weather = computed(() => weatherStore.currentWeather)
+const forecast = computed(() => weatherStore.forecast)
+const airPollution = computed(() => weatherStore.airPollution)
 const savedLocations = computed(() => weatherStore.savedLocations)
 const isLoading = computed(() => weatherStore.isLoading)
 const error = computed(() => weatherStore.error)
+
+// Helper functions for air pollution
+const getAqiDescription = (aqi) => weatherStore.getAqiDescription(aqi)
 
 onMounted(async () => {
   // Show the first splash screen for 2 seconds
@@ -139,18 +223,20 @@ async function searchWeather() {
   await weatherStore.fetchWeather(city.value)
 }
 
-async function saveLocation() {
+// eslint-disable-next-line no-unused-vars
+function saveLocation() {
   if (!weather.value) return
-  await weatherStore.saveLocation({
+  weatherStore.saveLocation({
       city_name: weather.value.name,
+      country_code: weather.value.sys.country,
       latitude: weather.value.coord.lat,
       longitude: weather.value.coord.lon
   })
 }
 
 async function loadSavedLocation(location) {
-  city.value = location.city_name
-  await searchWeather()
+  await weatherStore.fetchWeatherByCoords(location.latitude, location.longitude)
+  activeMenu.value = 'news' // Switch back to main view
 }
 
 async function deleteLocation(id) {
@@ -159,218 +245,5 @@ async function deleteLocation(id) {
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Moranga&display=swap');
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: 'Moranga', sans-serif;
-  line-height: 1.6;
-  color: #333;
-  background-color: #a8d0f7;
-}
-
-.splash-screen {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #a8d0f7;
-  text-align: center;
-}
-
-.splash-search-container {
-  width: 100%;
-  max-width: 500px;
-  padding: 0 1rem;
-}
-
-.splash-search-input {
-  width: 100%;
-  padding: 1rem 1.5rem;
-  border-radius: 9999px;
-  border: none;
-  font-size: 1.2rem;
-  outline: none;
-}
-
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-ente-from, .fade-leave-to {
-  opacity: 0;
-}
-
-.slide-up-enter-active {
-  animation: slide-up 0.8s ease-out forwards;
-}
-@keyframes slide-up {
-  0% {
-      transform: translateY(100px);
-      opacity: 0;
-  }
-  100% {
-      transform: translateY(0);
-      opacity: 1;
-  }
-}
-
-.app {
-  padding: 2rem;
-  min-height: 100vh;
-  background-color: #a8d0f7;
-}
-
-.home {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.search-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
-}
-
-.search-input {
-  padding: 0.75rem 1.5rem;
-  border-radius: 9999px;
-  border: none;
-  font-size: 1rem;
-  width: 100%;
-  max-width: 500px;
-  outline: none;
-}
-
-.save-button, .delete-button {
-  padding: 0.5rem 1rem;
-  background-color: #333;
-  color: white;
-  border: none;
-  border-radius: 9999px;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.delete-button {
-  background-color: #e74c3c;
-}
-
-.weather-card {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-.weather-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  background-color: #a8d0f7;
-  color: #333;
-}
-
-.weather-body {
-  display: flex;
-  justify-content: space-between;
-  padding: 1.5rem;
-  align-items: center;
-}
-
-.temperature {
-  display: flex;
-  flex-direction: column;
-}
-
-.temp-value {
-  font-size: 3rem;
-  font-weight: bold;
-}
-
-.feels-like {
-  font-size: 0.875rem;
-  color: #555;
-}
-
-.weather-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.weather-icon {
-  width: 100px;
-  height: 100px;
-}
-
-.weather-description {
-  text-transform: capitalize;
-  font-size: 1.25rem;
-}
-
-.weather-details {
-  display: flex;
-  justify-content: space-around;
-  padding: 1.5rem;
-  background-color: #f8f9fa;
-}
-
-.detail {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.label {
-  font-size: 0.875rem;
-  color: #777;
-}
-
-.value {
-  font-size: 1.25rem;
-  font-weight: bold;
-}
-
-.saved-locations {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-}
-
-.no-locations {
-  color: #777;
-  text-align: center;
-  padding: 1rem;
-}
-
-.locations-list {
-  list-style: none;
-  padding: 0;
-}
-
-.location-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  border-bottom: 1px solid #eee;
-}
-
-.location-name {
-  cursor: pointer;
-  color: #333;
-}
-
-.location-name:hover {
-  text-decoration: underline;
-}
+@import './assets/app-styles.css';
 </style>
