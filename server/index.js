@@ -123,7 +123,7 @@ function processForecastData(data) {
   return Array.from(dailyMap.values());
 }
 
-// Mock data for when database is not available
+// add mock data for when database is not available just for testing
 const mockLocations = [];
 let mockLocationId = 1;
 
@@ -133,7 +133,7 @@ app.post('/locations', async (req, res) => {
   const { city_name, latitude, longitude } = req.body;
   
   if (!isDatabaseConnected()) {
-    // Use mock data if database is not connected
+    // Use mock data if database is not connected just for testing in case of error#
     const newLocation = {
       id: mockLocationId++,
       city_name,
