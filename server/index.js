@@ -8,7 +8,6 @@ console.log('Loading .env from:', path.resolve(__dirname, '../.env'));
 
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
-//const { pool } = require('./database');  // Import the pool from database.js
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -75,7 +74,7 @@ app.get('/forecast/:lat/:lon', async (req, res) => {
   const apiKey = process.env.WEATHER_API_KEY || 'your_default_api_key';
   
   try {
-    // Using the 5 day / 3 hour forecast API which is available in the free tier
+    // Using the 5 day forcast
     const response = await fetch(
       `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`
      );

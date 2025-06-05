@@ -28,6 +28,7 @@ function celsiusToFahrenheit(celsius) {
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
+//main component for the 5 day forecast
 </script>
 
 <template>
