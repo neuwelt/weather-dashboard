@@ -1,6 +1,6 @@
 <template>
   <div id="app" :class="{ 'dark': isDark }">
-      <!-- Theme Toggle Button -->
+      <!-- Theme Toggle Button for dark mode and light mode -->
       <button @click="toggleDark()" class="theme-toggle">
           <span v-if="isDark">☀️</span>
           <span v-else>🌙</span>
@@ -176,6 +176,7 @@ function formatDate(timestamp) {
 
 const weatherStore = useWeatherStore()
 const themeStore = useThemeStore()
+//theme toggle button for dark mode and light mode
 const isDark = computed(() => themeStore.isDark)
 const toggleDark = themeStore.toggleDark
 
