@@ -47,11 +47,13 @@ app.get('/weather/:city', async (req, res) => {
   }
 });
 
-// Air Pollution API route
+// fetch the air pollution data from the openweathermap api
 app.get('/air-pollution/:lat/:lon', async (req, res) => {
+  // get the latitude and longitude from the request params
   const { lat, lon } = req.params;
+  // get the api key from the environment variables
   const apiKey = process.env.WEATHER_API_KEY || 'your_default_api_key';
-  
+  // fetch the air pollution data from the openweathermap api
   try {
     const response = await fetch(
       `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
