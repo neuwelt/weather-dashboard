@@ -106,7 +106,7 @@ export const useWeatherStore = defineStore('weather', {
       }
     },
     
-    // Helper function to get AQI description
+    // this is the function to get the AQI description
     getAqiDescription(aqi) {
       const descriptions = {
         1: 'Good',
@@ -118,7 +118,7 @@ export const useWeatherStore = defineStore('weather', {
       return descriptions[aqi] || 'Unknown';
     },
     
-    // Helper function to get AQI color
+    // this is the function to get the AQI color
     getAqiColor(aqi) {
       const colors = {
         1: '#4caf50', // Green
@@ -127,7 +127,7 @@ export const useWeatherStore = defineStore('weather', {
         4: '#ff9800', // Orange
         5: '#f44336'  // Red
       };
-      return colors[aqi] || '#9e9e9e'; // Grey for unknown
+      return colors[aqi] || '#9e9e9e'; // Grey for unknown AQI values just for testing
     }
   }
 });
