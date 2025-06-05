@@ -64,9 +64,11 @@ app.get('/air-pollution/:lat/:lon', async (req, res) => {
     }
     
     const data = await response.json();
+    // return the air pollution data  
     res.json(data);
   } catch (err) {
     console.error('Air Pollution API error:', err);
+    // return the error message
     res.status(500).json({ error: 'Air Pollution API failed', details: err.message });
   }
 });
