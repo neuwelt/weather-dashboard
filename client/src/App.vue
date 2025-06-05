@@ -67,7 +67,7 @@
                           </div>
                       </div>
 
-                      <!-- Air Pollution Card -->
+                      <!-- adding the air pollution card using the AQI description and color -->
                       <div v-if="airPollution" class="air-pollution">
                           <h3 class="air-pollution-title">Air Quality</h3>
                           <div class="air-quality-info">
