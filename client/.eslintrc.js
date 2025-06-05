@@ -1,3 +1,4 @@
+//eslint config for the client side code base
 module.exports = {
     root: true,
     env: {
@@ -20,6 +21,6 @@ module.exports = {
       defineSlots: 'readonly',
     },
     rules: {
-      // You can add custom rules here
+      // here we can add custom rules for the code base if needed 
     },
   };
