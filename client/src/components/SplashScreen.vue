@@ -1,117 +1,52 @@
 <template>
   <div
-    v-if="showSplash || showSecondSplash"
     class="splash-screen"
-    :style="{ backgroundColor: currentColor }"
+    style="background-color: #F8F5EC; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh;"
   >
     <div
-      v-if="showSplash"
-      class="splash-content"
+      class="brand"
+      style="text-align: center; margin-bottom: 50px;"
     >
-      <h1>Welcome to WeatherPress</h1>
+      <div style="font-size: 4rem; font-weight: bold; margin-bottom: 10px;">
+        <span style="color: #333;">Weather</span><span :style="{ color: currentColor }">Press</span>
+      </div>
     </div>
-    <div
-      v-else
-      class="splash-search"
-    >
-      <input
-        v-model="city"
-        placeholder="Enter a city..."
-      >
-      <button @click="handleSplashSearch">
-        Search
-      </button>
-      <button @click="showLoginPageFunc">
-        Login
-      </button>
-    </div>
+    <div class="loading-bar" />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useWeatherStore } from '@/stores/weatherStore'
-
-const props = defineProps({
-    onSearchComplete: {
-        type: Function,
-        required: true
-    },
-    showLogin: {
-        type: Function,
+defineProps({
+    currentColor: {
+        type: String,
         required: true
     }
 })
-
-const weatherStore = useWeatherStore()
-
-const showSplash = ref(true)
-const showSecondSplash = ref(false)
-const city = ref('')
-const currentColor = ref('#fff')
-const colors = ['#F28C38', '#F9C497', '#FCE0C7', '#FFFCF7']
-let colorIndex = 0
-
-onMounted(() => {
-    const interval = setInterval(() => {
-        colorIndex = (colorIndex + 1) % colors.length
-        currentColor.value = colors[colorIndex]
-    }, 300)
-
-    setTimeout(() => {
-        clearInterval(interval)
-        showSplash.value = false
-        showSecondSplash.value = true
-    }, 2000)
-})
-
-async function handleSplashSearch() {
-    if (!city.value) return
-    await weatherStore.fetchWeather(city.value)
-    props.onSearchComplete()
-}
-
-function showLoginPageFunc() {
-    props.showLogin()
-}
 </script>
 
 <style scoped>
-.splash-screen {
-    width: 100vw;
-    height: 100vh;
-    transition: background-color 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
+.loading-bar {
+    width: 200px;
+    height: 4px;
+    background-color: #ddd;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
 }
 
-.splash-content h1 {
-    font-size: 3rem;
-    color: #2D2D2D;
+.loading-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, #4A90E2, transparent);
+    animation: loading 2s infinite;
 }
 
-.splash-search {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.splash-search input {
-    padding: 12px 16px;
-    border: 2px solid #2D2D2D;
-    border-radius: 8px;
-    font-size: 16px;
-}
-
-.splash-search button {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    background-color: #2D2D2D;
-    color: #FFFCF7;
-    font-weight: 500;
-    cursor: pointer;
+@keyframes loading {
+    0% { left: -100%; }
+    100% { left: 100%; }
 }
 </style>
