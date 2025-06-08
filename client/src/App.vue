@@ -1,103 +1,103 @@
 <template>
+  <div
+    id="app"
+    :class="{ 'dark': isDark }"
+    style="font-family: 'Comfortaa', sans-serif;"
+  >
+    <!-- Theme Toggle Button -->
+    <ThemeToggle
+      :is-dark="isDark"
+      @toggle="toggleDark"
+    />
+
+    <!-- Splash Screens -->
+    <SplashScreen
+      v-if="showSplash"
+      :current-color="currentColor"
+    />
+
+    <SearchSplash
+      v-if="showSecondSplash"
+      v-model:city="city"
+      @search="handleSplashSearch"
+      @show-login="showLoginPageFunc"
+    />
+
+    <!-- Login Page -->
+    <LoginPage
+      v-if="showLoginPageState"
+      @login="handleLogin"
+      @back="goBackToSplash"
+    />
+
+    <!-- Main Application -->
     <div
-            id="app"
-            :class="{ 'dark': isDark }"
-            style="font-family: 'Comfortaa', sans-serif;"
+      v-if="showMain"
+      class="app"
+      :class="{ 'main-transition': transitioning }"
     >
-        <!-- Theme Toggle Button -->
-        <ThemeToggle
-                :is-dark="isDark"
-                @toggle="toggleDark"
-        />
+      <!-- Fixed Header -->
+      <AppHeader
+        :is-menu-open="isMenuOpen"
+        @toggle-menu="toggleMenu"
+      />
 
-        <!-- Splash Screens -->
-        <SplashScreen
-                v-if="showSplash"
-                :current-color="currentColor"
-        />
+      <!-- Full Screen Menu -->
+      <FullScreenMenu
+        :is-open="isMenuOpen"
+        :active-menu="activeMenu"
+        @close="closeMenu"
+        @set-menu="setActiveMenu"
+      />
 
-        <SearchSplash
-                v-if="showSecondSplash"
-                v-model:city="city"
-                @search="handleSplashSearch"
-                @show-login="showLoginPageFunc"
-        />
-
-        <!-- Login Page -->
-        <LoginPage
-                v-if="showLoginPageState"
-                @login="handleLogin"
-                @back="goBackToSplash"
-        />
-
-        <!-- Main Application -->
-        <div
-                v-if="showMain"
-                class="app"
-                :class="{ 'main-transition': transitioning }"
-        >
-            <!-- Fixed Header -->
-            <AppHeader
-                    :is-menu-open="isMenuOpen"
-                    @toggle-menu="toggleMenu"
+      <transition name="slide-up">
+        <main class="main-content">
+          <div class="home">
+            <!-- Search Section -->
+            <SearchBar
+              v-model:city="city"
+              @search="searchWeather"
             />
 
-            <!-- Full Screen Menu -->
-            <FullScreenMenu
-                    :is-open="isMenuOpen"
-                    :active-menu="activeMenu"
-                    @close="closeMenu"
-                    @set-menu="setActiveMenu"
+            <!-- Loading/Error States -->
+            <LoadingError
+              :is-loading="isLoading"
+              :error="error"
             />
 
-            <transition name="slide-up">
-                <main class="main-content">
-                    <div class="home">
-                        <!-- Search Section -->
-                        <SearchBar
-                                v-model:city="city"
-                                @search="searchWeather"
-                        />
+            <!-- Main Weather Display -->
+            <MainWeatherCard
+              v-if="weather"
+              :weather="weather"
+            />
 
-                        <!-- Loading/Error States -->
-                        <LoadingError
-                                :is-loading="isLoading"
-                                :error="error"
-                        />
+            <!-- Weather Details -->
+            <WeatherDetails
+              v-if="weather"
+              :weather="weather"
+            />
 
-                        <!-- Main Weather Display -->
-                        <MainWeatherCard
-                                v-if="weather"
-                                :weather="weather"
-                        />
+            <!-- 30-Day Forecast Section -->
+            <ForecastSection
+              v-if="forecast && forecast.daily"
+            />
 
-                        <!-- Weather Details -->
-                        <WeatherDetails
-                                v-if="weather"
-                                :weather="weather"
-                        />
+            <!-- Conditional Content Based on Active Menu -->
+            <SavedLocations
+              v-if="activeMenu === 'saved'"
+              :locations="savedLocations"
+              @load-location="loadSavedLocation"
+              @delete-location="deleteLocation"
+            />
 
-                        <!-- 30-Day Forecast Section -->
-                        <ForecastSection
-                                v-if="forecast && forecast.daily"
-                        />
-
-                        <!-- Conditional Content Based on Active Menu -->
-                        <SavedLocations
-                                v-if="activeMenu === 'saved'"
-                                :locations="savedLocations"
-                                @load-location="loadSavedLocation"
-                                @delete-location="deleteLocation"
-                        />
-
-                        <ProfilePage
-                                v-if="activeMenu === 'profile'"
-                        />
-                    </div>
-                </main>
-            </transition>
-        </div>
+            <ProfilePage
+              v-if="activeMenu === 'profile'"
+            />
+          </div>
+        </main>
+      </transition>
     </div>
+  </div>
 </template>
 
 <script setup>
