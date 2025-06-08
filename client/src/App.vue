@@ -5,9 +5,9 @@
     style="font-family: 'Comfortaa', sans-serif;"
   >
     <!-- Theme Toggle Button -->
-    <ThemeToggle 
-      :is-dark="isDark" 
-      @toggle="toggleDark" 
+    <ThemeToggle
+      :is-dark="isDark"
+      @toggle="toggleDark"
     />
 
     <!-- Splash Screens -->
@@ -106,19 +106,7 @@ import { useWeatherStore } from './stores/weatherStore'
 import { useThemeStore } from './stores/themeStore'
 
 // Import Components
-import ThemeToggle from './components/ThemeToggle.vue'
 import SplashScreen from './components/SplashScreen.vue'
-import SearchSplash from './components/SearchSplash.vue'
-import LoginPage from './components/LoginPage.vue'
-import AppHeader from './components/AppHeader.vue'
-import FullScreenMenu from './components/FullScreenMenu.vue'
-import SearchBar from './components/SearchBar.vue'
-import LoadingError from './components/LoadingError.vue'
-import MainWeatherCard from './components/MainWeatherCard.vue'
-import WeatherDetails from './components/WeatherDetails.vue'
-import ForecastSection from './components/ForecastSection.vue'
-import SavedLocations from './components/SavedLocations.vue'
-import ProfilePage from './components/ProfilePage.vue'
 
 import './assets/theme.css'
 import './assets/main.css'
