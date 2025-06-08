@@ -1,208 +1,408 @@
 <template>
-    <div id="app" :class="{ 'dark': isDark }" style="font-family: 'Comfortaa', sans-serif;">
-        <!-- Theme Toggle Button -->
-        <button @click="toggleDark()" class="theme-toggle">
-            <span v-if="isDark">☀️</span>
-            <span v-else>🌙</span>
+  <div
+    id="app"
+    :class="{ 'dark': isDark }"
+    style="font-family: 'Comfortaa', sans-serif;"
+  >
+    <!-- Theme Toggle Button -->
+    <button
+      class="theme-toggle"
+      @click="toggleDark()"
+    >
+      <span v-if="isDark">☀️</span>
+      <span v-else>🌙</span>
+    </button>
+
+    <!-- First Splash Screen -->
+    <div
+      v-if="showSplash"
+      class="splash-screen"
+      style="background-color: #F8F5EC; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh;"
+    >
+      <div
+        class="brand"
+        style="text-align: center; margin-bottom: 50px;"
+      >
+        <div style="font-size: 4rem; font-weight: bold; margin-bottom: 10px;">
+          <span style="color: #333;">Weather</span><span :style="{ color: currentColor }">Press</span>
+        </div>
+      </div>
+      <div class="loading-bar" />
+    </div>
+
+    <!-- Second Splash Screen with Search -->
+    <div
+      v-if="showSecondSplash"
+      class="splash-screen"
+      style="background-color: #F8F5EC;"
+    >
+      <div class="brand">
+        <span class="brand-weather">Weather</span><span class="brand-press">Press</span>
+      </div>
+      <transition name="fade">
+        <div class="splash-search-container">
+          <input
+            v-model="city"
+            placeholder="Enter city name..."
+            class="splash-search-input"
+            style="border: 2px solid #2D2D2D;"
+            @keyup.enter="handleSplashSearch"
+          >
+          <div style="text-align: center; margin-top: 20px;">
+            <button
+              style="background: none;
+              border: none; color: #2D2D2D;
+              cursor: pointer;
+              text-decoration: underline;
+              font-size: 14px;
+              font-family: 'Comfortaa', sans-serif;"
+              @click="showLoginPageFunc"
+            >
+              I already have an account
+            </button>
+          </div>
+        </div>
+      </transition>
+    </div>
+
+    <!-- Login Page -->
+    <div
+      v-if="showLoginPageState"
+      class="login-page"
+      style="background-color: #F8F5EC; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;"
+    >
+      <div
+        class="brand"
+        style="text-align: center; margin-bottom: 40px;"
+      >
+        <div style="font-size: 3rem; font-weight: bold; color: #333; margin-bottom: 10px;">
+          WeatherPress
+        </div>
+        <div style="font-size: 1.2rem; color: #666;">
+          Welcome back!
+        </div>
+      </div>
+
+      <div
+        class="login-form"
+        style="background-color: #FFFCF7; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px;"
+      >
+        <div
+          v-if="loginError"
+          style="background-color: #ffebee; color: #c62828; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 1px solid #ef5350;"
+        >
+          {{ loginError }}
+        </div>
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Email</label>
+          <input
+            v-model="loginEmail"
+            type="email"
+            placeholder="Enter your email"
+            style="width: 100%; padding: 12px; border: 2px solid #2D2D2D; border-radius: 8px; background-color: #FFFCF7; color: #333; font-family: 'Comfortaa', sans-serif;"
+          >
+        </div>
+
+        <div style="margin-bottom: 30px;">
+          <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Password</label>
+          <input
+            v-model="loginPassword"
+            type="password"
+            placeholder="Enter your password"
+            style="width: 100%; padding: 12px; border: 2px solid #2D2D2D; border-radius: 8px; background-color: #FFFCF7; color: #333; font-family: 'Comfortaa', sans-serif;"
+          >
+        </div>
+
+        <button
+          style="width: 100%;
+          padding: 12px;
+          background-color: #2D2D2D;
+          color: #FFFCF7;
+          border: none;
+          border-radius: 8px;
+          font-family: 'Comfortaa', sans-serif;
+          font-weight: 500;
+          cursor: pointer;
+          margin-bottom: 20px;"
+          @click="handleLogin"
+        >
+          Login
         </button>
 
-        <!-- First Splash Screen -->
-        <div v-if="showSplash" class="splash-screen" style="background-color: #F8F5EC; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh;">
-            <div class="brand" style="text-align: center; margin-bottom: 50px;">
-                <div style="font-size: 4rem; font-weight: bold; margin-bottom: 10px;">
-                    <span style="color: #333;">Weather</span><span :style="{ color: currentColor }">Press</span>
-                </div>
-            </div>
-            <div class="loading-bar"></div>
+        <div style="text-align: center;">
+          <span
+            style="color: #2D2D2D;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 14px;"
+            @click="goBackToSplash"
+          >Back to search</span>
         </div>
-
-        <!-- Second Splash Screen with Search -->
-        <div v-if="showSecondSplash" class="splash-screen" style="background-color: #F8F5EC;">
-            <div class="brand">
-                <span class="brand-weather">Weather</span><span class="brand-press">Press</span>
-            </div>
-            <transition name="fade">
-                <div class="splash-search-container">
-                    <input
-                        v-model="city"
-                        @keyup.enter="handleSplashSearch"
-                        placeholder="Enter city name..."
-                        class="splash-search-input"
-                        style="border: 2px solid #2D2D2D;"
-                    />
-                    <div style="text-align: center; margin-top: 20px;">
-                        <button @click="showLoginPageFunc" style="background: none; border: none; color: #2D2D2D; cursor: pointer; text-decoration: underline; font-size: 14px; font-family: 'Comfortaa', sans-serif;">I already have an account</button>
-                    </div>
-                </div>
-            </transition>
-        </div>
-
-        <!-- Login Page -->
-        <div v-if="showLoginPageState" class="login-page" style="background-color: #F8F5EC; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;">
-            <div class="brand" style="text-align: center; margin-bottom: 40px;">
-                <div style="font-size: 3rem; font-weight: bold; color: #333; margin-bottom: 10px;">WeatherPress</div>
-                <div style="font-size: 1.2rem; color: #666;">Welcome back!</div>
-            </div>
-
-            <div class="login-form" style="background-color: #FFFCF7; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px;">
-                <div v-if="loginError" style="background-color: #ffebee; color: #c62828; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 1px solid #ef5350;">
-                    {{ loginError }}
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Email</label>
-                    <input type="email" v-model="loginEmail" placeholder="Enter your email" style="width: 100%; padding: 12px; border: 2px solid #2D2D2D; border-radius: 8px; background-color: #FFFCF7; color: #333; font-family: 'Comfortaa', sans-serif;"/>
-                </div>
-
-                <div style="margin-bottom: 30px;">
-                    <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Password</label>
-                    <input type="password" v-model="loginPassword" placeholder="Enter your password" style="width: 100%; padding: 12px; border: 2px solid #2D2D2D; border-radius: 8px; background-color: #FFFCF7; color: #333; font-family: 'Comfortaa', sans-serif;"/>
-                </div>
-
-                <button @click="handleLogin" style="width: 100%; padding: 12px; background-color: #2D2D2D; color: #FFFCF7; border: none; border-radius: 8px; font-family: 'Comfortaa', sans-serif; font-weight: 500; cursor: pointer; margin-bottom: 20px;">Login</button>
-
-                <div style="text-align: center;">
-                    <span @click="goBackToSplash" style="color: #2D2D2D; cursor: pointer; text-decoration: underline; font-size: 14px;">Back to search</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main content: This should appear only after both splash screens -->
-        <div v-if="showMain" class="app" :class="{ 'main-transition': transitioning }">
-            <!-- Fixed Header -->
-            <div class="fixed-header">
-                <div class="profile-section">Profile</div>
-                <div class="web-name">Weather Press</div>
-                <button @click="toggleMenu" class="menu-button" :class="{ 'menu-active': isMenuOpen }">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-            </div>
-
-            <!-- Full Screen Menu -->
-            <div class="fullscreen-menu" :class="{ 'menu-open': isMenuOpen }">
-                <button @click="closeMenu" class="close-menu-button">×</button>
-                <div class="menu-content">
-                    <div class="menu-item" @click="setActiveMenu('news')">News</div>
-                    <div class="menu-item" @click="setActiveMenu('saved')">Saved Locations</div>
-                    <div class="menu-item" @click="setActiveMenu('profile')">Profile</div>
-                </div>
-            </div>
-
-            <transition name="slide-up">
-                <main class="main-content">
-                    <div class="home">
-                        <div class="search-container">
-                            <input
-                                v-model="city"
-                                @keyup.enter="searchWeather"
-                                placeholder="Enter city name..."
-                                class="search-input"
-                            />
-                            <button @click="searchWeather" class="search-button">Search</button>
-                        </div>
-
-                        <div v-if="isLoading" class="loading">Loading...</div>
-                        <div v-else-if="error" class="error">{{ error }}</div>
-
-                        <!-- Main Weather Block - Updated Layout -->
-                        <div v-else-if="weather" class="main-weather-container">
-                            <div class="weather-illustration-container">
-                                <img src="./assets/icons/girl-with-fan.png" alt="Weather illustration" class="weather-illustration" />
-                                <div class="air-pollution-info">
-                                    <div class="air-pollution-title">Air pollution: Fair</div>
-                                    <div class="air-pollution-description">Air quality is fine, but sensitive groups may feel some effects over time.</div>
-                                </div>
-                            </div>
-
-                            <div class="main-weather-info">
-                                <h1 class="city-name">{{ weather.name }}</h1>
-                                <div class="temperature-main">{{ Math.round(weather.main.temp) }}°C {{ weather.weather[0].main }}</div>
-                                <div class="feels-like-pill">Feels like: {{ Math.round(weather.main.feels_like) }}°C</div>
-                            </div>
-                        </div>
-
-                        <!-- Weather Details Cards -->
-                        <div v-if="weather" class="weather-details-grid">
-                            <!-- Forecast Cards -->
-                            <div class="forecast-cards">
-                                <div class="forecast-card">
-                                    <div class="forecast-date">22 May</div>
-                                    <div class="forecast-temp">22°C</div>
-                                    <div class="forecast-icon">☀️</div>
-                                </div>
-                                <div class="forecast-card">
-                                    <div class="forecast-date">23 May</div>
-                                    <div class="forecast-temp">10°C</div>
-                                    <div class="forecast-icon">☀️</div>
-                                </div>
-                            </div>
-
-                            <!-- Weather Stats Card -->
-                            <div class="weather-stats-card">
-                                <div class="stat-item">
-                                    <span class="stat-label">Humidity:</span>
-                                    <span class="stat-value">{{ weather?.main.humidity }}%</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-label">Wind:</span>
-                                    <span class="stat-value">{{ weather?.wind.speed }} km/h</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-label">Pressure:</span>
-                                    <span class="stat-value">{{ weather?.main.pressure }} mb</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 30-Day Forecast Section -->
-                        <div v-if="forecast && forecast.daily" class="thirty-day-section">
-                            <h3 class="section-title">30 Days Weather</h3>
-                        </div>
-
-                        <!-- Saved Locations (only shown when activeMenu is 'saved') -->
-                        <div v-if="activeMenu === 'saved'" class="saved-locations">
-                            <h3>Saved Locations</h3>
-                            <div v-if="savedLocations.length === 0" class="no-locations">
-                                No saved locations yet.
-                            </div>
-                            <ul v-else class="locations-list">
-                                <li v-for="location in savedLocations" :key="location.id" class="location-item">
-                                    <span class="location-name" @click="loadSavedLocation(location)">
-                                      {{ location.city_name }}
-                                    </span>
-                                    <button @click="deleteLocation(location.id)" class="delete-button">Delete</button>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <!-- Profile Page (only shown when activeMenu is 'profile') -->
-                        <div v-if="activeMenu === 'profile'" class="profile-page">
-                            <div class="profile-form">
-                                <h3>User Profile</h3>
-                                <div class="form-group">
-                                    <label class="form-label">Username</label>
-                                    <input type="text" class="form-input" placeholder="Username" />
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Email</label>
-                                    <input type="email" class="form-input" placeholder="Email" />
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Preferred Units</label>
-                                    <select class="form-input">
-                                        <option value="metric">Metric (°C)</option>
-                                        <option value="imperial">Imperial (°F)</option>
-                                    </select>
-                                </div>
-                                <button class="form-button">Save Changes</button>
-                            </div>
-                        </div>
-                    </div>
-                </main>
-            </transition>
-        </div>
+      </div>
     </div>
+
+    <!-- Main content: This should appear only after both splash screens -->
+    <div
+      v-if="showMain"
+      class="app"
+      :class="{ 'main-transition': transitioning }"
+    >
+      <!-- Fixed Header -->
+      <div class="fixed-header">
+        <div class="profile-section">
+          Profile
+        </div>
+        <div class="web-name">
+          Weather Press
+        </div>
+        <button
+          class="menu-button"
+          :class="{ 'menu-active': isMenuOpen }"
+          @click="toggleMenu"
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+      </div>
+
+      <!-- Full Screen Menu -->
+      <div
+        class="fullscreen-menu"
+        :class="{ 'menu-open': isMenuOpen }"
+      >
+        <button
+          class="close-menu-button"
+          @click="closeMenu"
+        >
+          ×
+        </button>
+        <div class="menu-content">
+          <div
+            class="menu-item"
+            @click="setActiveMenu('news')"
+          >
+            News
+          </div>
+          <div
+            class="menu-item"
+            @click="setActiveMenu('saved')"
+          >
+            Saved Locations
+          </div>
+          <div
+            class="menu-item"
+            @click="setActiveMenu('profile')"
+          >
+            Profile
+          </div>
+        </div>
+      </div>
+
+      <transition name="slide-up">
+        <main class="main-content">
+          <div class="home">
+            <div class="search-container">
+              <input
+                v-model="city"
+                placeholder="Enter city name..."
+                class="search-input"
+                @keyup.enter="searchWeather"
+              >
+              <button
+                class="search-button"
+                @click="searchWeather"
+              >
+                Search
+              </button>
+            </div>
+
+            <div
+              v-if="isLoading"
+              class="loading"
+            >
+              Loading...
+            </div>
+            <div
+              v-else-if="error"
+              class="error"
+            >
+              {{ error }}
+            </div>
+
+            <!-- Main Weather Block - Updated Layout -->
+            <div
+              v-else-if="weather"
+              class="main-weather-container"
+            >
+              <div class="weather-illustration-container">
+                <img
+                  src="./assets/icons/girl-with-fan.png"
+                  alt="Weather illustration"
+                  class="weather-illustration"
+                >
+                <div class="air-pollution-info">
+                  <div class="air-pollution-title">
+                    Air pollution: Fair
+                  </div>
+                  <div class="air-pollution-description">
+                    Air quality is fine, but sensitive groups may feel some effects over time.
+                  </div>
+                </div>
+              </div>
+
+              <div class="main-weather-info">
+                <h1 class="city-name">
+                  {{ weather.name }}
+                </h1>
+                <div class="temperature-main">
+                  {{ Math.round(weather.main.temp) }}°C {{ weather.weather[0].main }}
+                </div>
+                <div class="feels-like-pill">
+                  Feels like: {{ Math.round(weather.main.feels_like) }}°C
+                </div>
+              </div>
+            </div>
+
+            <!-- Weather Details Cards -->
+            <div
+              v-if="weather"
+              class="weather-details-grid"
+            >
+              <!-- Forecast Cards -->
+              <div class="forecast-cards">
+                <div class="forecast-card">
+                  <div class="forecast-date">
+                    22 May
+                  </div>
+                  <div class="forecast-temp">
+                    22°C
+                  </div>
+                  <div class="forecast-icon">
+                    ☀️
+                  </div>
+                </div>
+                <div class="forecast-card">
+                  <div class="forecast-date">
+                    23 May
+                  </div>
+                  <div class="forecast-temp">
+                    10°C
+                  </div>
+                  <div class="forecast-icon">
+                    ☀️
+                  </div>
+                </div>
+              </div>
+
+              <!-- Weather Stats Card -->
+              <div class="weather-stats-card">
+                <div class="stat-item">
+                  <span class="stat-label">Humidity:</span>
+                  <span class="stat-value">{{ weather?.main.humidity }}%</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Wind:</span>
+                  <span class="stat-value">{{ weather?.wind.speed }} km/h</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Pressure:</span>
+                  <span class="stat-value">{{ weather?.main.pressure }} mb</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 30-Day Forecast Section -->
+            <div
+              v-if="forecast && forecast.daily"
+              class="thirty-day-section"
+            >
+              <h3 class="section-title">
+                30 Days Weather
+              </h3>
+            </div>
+
+            <!-- Saved Locations (only shown when activeMenu is 'saved') -->
+            <div
+              v-if="activeMenu === 'saved'"
+              class="saved-locations"
+            >
+              <h3>Saved Locations</h3>
+              <div
+                v-if="savedLocations.length === 0"
+                class="no-locations"
+              >
+                No saved locations yet.
+              </div>
+              <ul
+                v-else
+                class="locations-list"
+              >
+                <li
+                  v-for="location in savedLocations"
+                  :key="location.id"
+                  class="location-item"
+                >
+                  <span
+                    class="location-name"
+                    @click="loadSavedLocation(location)"
+                  >
+                    {{ location.city_name }}
+                  </span>
+                  <button
+                    class="delete-button"
+                    @click="deleteLocation(location.id)"
+                  >
+                    Delete
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Profile Page (only shown when activeMenu is 'profile') -->
+            <div
+              v-if="activeMenu === 'profile'"
+              class="profile-page"
+            >
+              <div class="profile-form">
+                <h3>User Profile</h3>
+                <div class="form-group">
+                  <label class="form-label">Username</label>
+                  <input
+                    type="text"
+                    class="form-input"
+                    placeholder="Username"
+                  >
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email</label>
+                  <input
+                    type="email"
+                    class="form-input"
+                    placeholder="Email"
+                  >
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Preferred Units</label>
+                  <select class="form-input">
+                    <option value="metric">
+                      Metric (°C)
+                    </option>
+                    <option value="imperial">
+                      Imperial (°F)
+                    </option>
+                  </select>
+                </div>
+                <button class="form-button">
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </main>
+      </transition>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -283,7 +483,7 @@ async function searchWeather() {
     await weatherStore.fetchWeather(city.value)
 }
 
-// eslint-disable-next-line no-unused-vars
+/*
 function saveLocation() {
     if (!weather.value) return
     weatherStore.saveLocation({
@@ -293,6 +493,7 @@ function saveLocation() {
         longitude: weather.value.coord.lon
     })
 }
+ */
 
 async function loadSavedLocation(location) {
     await weatherStore.fetchWeatherByCoords(location.latitude, location.longitude)
@@ -498,12 +699,12 @@ function setActiveMenu(menu) {
 }
 
 /* Weather Details Grid */
-.weather-details-grid {
+/*.weather-details-grid {
     display: flex;
     gap: 20px;
     margin-bottom: 40px;
     flex-wrap: wrap;
-}
+}*/
 
 .forecast-cards {
     display: flex;
@@ -717,9 +918,9 @@ function setActiveMenu(menu) {
         font-size: 3rem;
     }
 
-    .weather-details-grid {
+    /*.weather-details-grid {
         flex-direction: column;
-    }
+    }*/
 
     .forecast-cards {
         justify-content: center;
