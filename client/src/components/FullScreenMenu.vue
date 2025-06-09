@@ -1,38 +1,32 @@
 <template>
-  <div
-    class="fullscreen-menu"
-    :class="{ 'menu-open': isOpen }"
-  >
-    <button
-      class="close-menu-button"
-      @click="$emit('close')"
-    >
-      ×
-    </button>
-    <div class="menu-content">
-      <div
-        class="menu-item"
-        :class="{ active: activeMenu === 'news' }"
-        @click="$emit('set-menu', 'news')"
-      >
-        News
-      </div>
-      <div
-        class="menu-item"
-        :class="{ active: activeMenu === 'saved' }"
-        @click="$emit('set-menu', 'saved')"
-      >
-        Saved Locations
-      </div>
-      <div
-        class="menu-item"
-        :class="{ active: activeMenu === 'profile' }"
-        @click="$emit('set-menu', 'profile')"
-      >
-        Profile
-      </div>
+    <div class="fullscreen-menu" :class="{ 'menu-open': isOpen }">
+        <button class="close-menu-button" @click="$emit('close')">
+            ×
+        </button>
+        <div class="menu-content">
+            <div
+                    class="menu-item"
+                    :class="{ active: activeMenu === 'news' }"
+                    @click="$emit('set-menu', 'news')"
+            >
+                News
+            </div>
+            <div
+                    class="menu-item"
+                    :class="{ active: activeMenu === 'saved' }"
+                    @click="$emit('set-menu', 'saved')"
+            >
+                Saved Locations
+            </div>
+            <div
+                    class="menu-item"
+                    :class="{ active: activeMenu === 'profile' }"
+                    @click="$emit('set-menu', 'profile')"
+            >
+                Profile
+            </div>
+        </div>
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -43,7 +37,8 @@ defineProps({
     },
     activeMenu: {
         type: String,
-        required: true
+        required: false,
+        default: null  // This ensures no menu is active by default
     }
 })
 
@@ -81,21 +76,20 @@ defineEmits(['close', 'set-menu'])
     font-size: 2.5rem;
     font-weight: 600;
     cursor: pointer;
-    padding: 20px 40px;
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 2px;
     position: relative;
+    padding: 0;
+    display: inline;
 }
 
 .menu-item:hover {
     color: #2D2D2D;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .menu-item.active {
     color: #2D2D2D;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .menu-item:active {
@@ -104,8 +98,8 @@ defineEmits(['close', 'set-menu'])
 
 .close-menu-button {
     position: absolute;
-    top: 30px;
-    right: 30px;
+    top: 18px;
+    right: 60px;
     background: none;
     border: none;
     color: white;
@@ -123,7 +117,6 @@ defineEmits(['close', 'set-menu'])
 }
 
 .close-menu-button:hover {
-    background-color: rgba(255,255,255,0.1);
     transform: rotate(90deg);
 }
 </style>
