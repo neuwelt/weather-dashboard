@@ -1,160 +1,121 @@
 <!-- components/LoginPage.vue -->
 <template>
-  <div class="login-page">
-    <div class="login-container">
-      <div class="login-card">
-        <!-- Back Button -->
-        <button
-          class="back-btn"
-          @click="$emit('back')"
-        >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-          >
-            <path
-              d="M19 12H5M12 19l-7-7 7-7"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
+  <div
+    class="login-page"
+    style="background-color: #F8F5EC; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;"
+  >
+    <div
+      class="brand"
+      style="text-align: center; margin-bottom: 40px;"
+    >
+      <div style="font-size: 3rem; font-weight: bold; color: #2D2D2D; margin-bottom: 10px; font-family: 'Comfortaa', sans-serif;">
+        WeatherPress
+      </div>
+      <div style="font-size: 1.2rem; color: #2D2D2D; font-family: 'Comfortaa', sans-serif;">
+        {{ isLogin ? 'Welcome back!' : 'Join us today!' }}
+      </div>
+    </div>
 
-        <!-- Header -->
-        <div class="login-header">
-          <h1>{{ isLogin ? 'Welcome Back' : 'Create Account' }}</h1>
-          <p>{{ isLogin ? 'Sign in to your account' : 'Join us to save your favorite locations' }}</p>
+    <div
+      class="login-form"
+      style="background-color: #FFFCF7; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px;"
+    >
+      <!-- Back Button -->
+      <button
+        style="background: none; border: none; color: #2D2D2D; cursor: pointer; padding: 8px; margin-bottom: 20px; font-family: 'Comfortaa', sans-serif; text-decoration: underline; font-size: 14px;"
+        @click="$emit('back')"
+      >
+        ← Back to search
+      </button>
+
+      <!-- Error Message -->
+      <div
+        v-if="authStore.error"
+        style="background-color: #ffebee; color: #c62828; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 1px solid #ef5350; font-family: 'Comfortaa', sans-serif;"
+      >
+        {{ authStore.error }}
+      </div>
+
+      <!-- Form -->
+      <form @submit.prevent="handleSubmit">
+        <!-- Name field (only for registration) -->
+        <div
+          v-if="!isLogin"
+          style="margin-bottom: 20px;"
+        >
+          <label style="display: block; margin-bottom: 8px; color: #2D2D2D; font-weight: 500; font-family: 'Comfortaa', sans-serif;">Full Name</label>
+          <input
+            v-model="formData.name"
+            type="text"
+            placeholder="Enter your full name"
+            required
+            :disabled="authStore.loading"
+            style="width: 100%; padding: 12px; border: 2px solid #2D2D2D; border-radius: 8px; background-color: #FFFCF7; color: #2D2D2D; font-family: 'Comfortaa', sans-serif; box-sizing: border-box;"
+          >
         </div>
 
-        <!-- Form -->
-        <form
-          class="login-form"
-          @submit.prevent="handleSubmit"
-        >
-          <!-- Name field (only for registration) -->
-          <div
-            v-if="!isLogin"
-            class="form-group"
-          >
-            <label for="name">Full Name</label>
-            <input
-              id="name"
-              v-model="formData.name"
-              type="text"
-              placeholder="Enter your full name"
-              required
-              :disabled="authStore.loading"
-            >
-          </div>
-
-          <!-- Email field -->
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input
-              id="email"
-              v-model="formData.email"
-              type="email"
-              placeholder="Enter your email"
-              required
-              :disabled="authStore.loading"
-            >
-          </div>
-
-          <!-- Password field -->
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input
-              id="password"
-              v-model="formData.password"
-              type="password"
-              placeholder="Enter your password"
-              required
-              :disabled="authStore.loading"
-              :minlength="isLogin ? 1 : 6"
-            >
-            <small
-              v-if="!isLogin"
-              class="password-hint"
-            >
-              Password must be at least 6 characters long
-            </small>
-          </div>
-
-          <!-- Error Message -->
-          <div
-            v-if="authStore.error"
-            class="error-message"
-          >
-            {{ authStore.error }}
-          </div>
-
-          <!-- Submit Button -->
-          <button
-            type="submit"
-            class="submit-btn"
+        <!-- Email field -->
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; color: #2D2D2D; font-weight: 500; font-family: 'Comfortaa', sans-serif;">Email</label>
+          <input
+            v-model="formData.email"
+            type="email"
+            placeholder="Enter your email"
+            required
             :disabled="authStore.loading"
+            style="width: 100%; padding: 12px; border: 2px solid #2D2D2D; border-radius: 8px; background-color: #FFFCF7; color: #2D2D2D; font-family: 'Comfortaa', sans-serif; box-sizing: border-box;"
           >
-            <span v-if="authStore.loading">
-              <svg
-                class="spinner"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                  fill="none"
-                  opacity="0.3"
-                />
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                  fill="none"
-                  stroke-dasharray="32"
-                  stroke-dashoffset="32"
-                >
-                  <animate
-                    attributeName="stroke-dashoffset"
-                    dur="1s"
-                    values="32;0"
-                    repeatCount="indefinite"
-                  />
-                </circle>
-              </svg>
-              {{ isLogin ? 'Signing In...' : 'Creating Account...' }}
-            </span>
-            <span v-else>
-              {{ isLogin ? 'Sign In' : 'Create Account' }}
-            </span>
-          </button>
+        </div>
 
-          <!-- Toggle Mode -->
-          <div class="toggle-mode">
-            <p>
-              {{ isLogin ? "Don't have an account?" : "Already have an account?" }}
-              <button
-                type="button"
-                class="toggle-btn"
-                :disabled="authStore.loading"
-                @click="toggleMode"
-              >
-                {{ isLogin ? 'Sign Up' : 'Sign In' }}
-              </button>
-            </p>
-          </div>
-        </form>
-      </div>
+        <!-- Password field -->
+        <div style="margin-bottom: 30px;">
+          <label style="display: block; margin-bottom: 8px; color: #2D2D2D; font-weight: 500; font-family: 'Comfortaa', sans-serif;">Password</label>
+          <input
+            v-model="formData.password"
+            type="password"
+            placeholder="Enter your password"
+            required
+            :disabled="authStore.loading"
+            :minlength="isLogin ? 1 : 6"
+            style="width: 100%; padding: 12px; border: 2px solid #2D2D2D; border-radius: 8px; background-color: #FFFCF7; color: #2D2D2D; font-family: 'Comfortaa', sans-serif; box-sizing: border-box;"
+          >
+          <small
+            v-if="!isLogin"
+            style="color: #2D2D2D; font-size: 12px; font-family: 'Comfortaa', sans-serif; margin-top: 4px; display: block;"
+          >
+            Password must be at least 6 characters long
+          </small>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          :disabled="authStore.loading"
+          style="width: 100%; padding: 12px; background-color: #2D2D2D; color: #FFFCF7; border: none; border-radius: 8px; font-family: 'Comfortaa', sans-serif; font-weight: 500; cursor: pointer; margin-bottom: 20px;"
+        >
+          <span v-if="authStore.loading">
+            {{ isLogin ? 'Signing In...' : 'Creating Account...' }}
+          </span>
+          <span v-else>
+            {{ isLogin ? 'Login' : 'Create Account' }}
+          </span>
+        </button>
+
+        <!-- Toggle Mode -->
+        <div style="text-align: center;">
+          <span style="color: #2D2D2D; font-family: 'Comfortaa', sans-serif; font-size: 14px;">
+            {{ isLogin ? "Don't have an account?" : "Already have an account?" }}
+          </span>
+          <button
+            type="button"
+            :disabled="authStore.loading"
+            style="background: none; border: none; color: #2D2D2D; cursor: pointer; text-decoration: underline; font-family: 'Comfortaa', sans-serif; font-size: 14px; margin-left: 4px;"
+            @click="toggleMode"
+          >
+            {{ isLogin ? 'Sign Up' : 'Sign In' }}
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </template>
@@ -218,207 +179,3 @@ function toggleMode() {
     formData.password = ''
 }
 </script>
-
-<style scoped>
-.login-page {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.login-container {
-    width: 100%;
-    max-width: 400px;
-    padding: 20px;
-    margin: 0 auto;
-}
-
-.login-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 40px 30px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    position: relative;
-}
-
-.back-btn {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background: none;
-    border: none;
-    color: #666;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.back-btn:hover {
-    background: rgba(0, 0, 0, 0.1);
-    color: #333;
-}
-
-.login-header {
-    text-align: center;
-    margin-bottom: 30px;
-    margin-top: 20px;
-}
-
-.login-header h1 {
-    font-size: 28px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 8px;
-}
-
-.login-header p {
-    color: #666;
-    font-size: 16px;
-}
-
-.login-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.form-group label {
-    font-weight: 500;
-    color: #333;
-    font-size: 14px;
-}
-
-.form-group input {
-    padding: 12px 16px;
-    border: 2px solid #e1e5e9;
-    border-radius: 12px;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    background: white;
-}
-
-.form-group input:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.form-group input:disabled {
-    background: #f5f5f5;
-    cursor: not-allowed;
-}
-
-.password-hint {
-    color: #666;
-    font-size: 12px;
-    margin-top: -4px;
-}
-
-.error-message {
-    background: #fee;
-    color: #c53030;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 14px;
-    border: 1px solid #fed7d7;
-}
-
-.submit-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    padding: 14px 20px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 10px;
-}
-
-.submit-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-}
-
-.submit-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.spinner {
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.toggle-mode {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.toggle-mode p {
-    color: #666;
-    font-size: 14px;
-}
-
-.toggle-btn {
-    background: none;
-    border: none;
-    color: #667eea;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: underline;
-    font-size: 14px;
-    margin-left: 4px;
-}
-
-.toggle-btn:hover:not(:disabled) {
-    color: #5a67d8;
-}
-
-.toggle-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-@media (max-width: 480px) {
-    .login-container {
-        padding: 10px;
-    }
-
-    .login-card {
-        padding: 30px 20px;
-    }
-
-    .login-header h1 {
-        font-size: 24px;
-    }
-}
-</style>
