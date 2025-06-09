@@ -32,24 +32,49 @@ const initDatabase = async () => {
       console.log('Database pool not initialized, using mock data');
       return;
     }
-    
+
     // Test connection
     const client = await pool.connect();
     console.log('PostgreSQL connected: ', client.database);
     isConnected = true;
-    
-    // Create table if it doesn't exist
+
+    // Create users table if it doesn't exist
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create saved_locations table with user_id foreign key
     await client.query(`
       CREATE TABLE IF NOT EXISTS saved_locations (
         id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         city_name TEXT NOT NULL,
         latitude FLOAT,
         longitude FLOAT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
-    console.log('Database tables initialized');
+
+    // Create index on email for faster lookups
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)
+    `);
+
+    // Create index on user_id for saved_locations
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_saved_locations_user_id ON saved_locations(user_id)
+    `);
+
+    console.log('Database tables initialized successfully');
     client.release();
+
   } catch (err) {
     console.error('Database connection error:', err.message);
     console.log('Continuing with mock data for locations');
@@ -59,4 +84,8 @@ const initDatabase = async () => {
 
 const isDatabaseConnected = () => isConnected;
 
-module.exports = { pool, initDatabase, isDatabaseConnected };
+module.exports = {
+  pool,
+  initDatabase,
+  isDatabaseConnected
+};
