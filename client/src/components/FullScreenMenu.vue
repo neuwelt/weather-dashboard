@@ -1,38 +1,38 @@
 <template>
-    <div
-            class="fullscreen-menu"
-            :class="{ 'menu-open': isOpen }"
+  <div
+    class="fullscreen-menu"
+    :class="{ 'menu-open': isOpen }"
+  >
+    <button
+      class="close-menu-button"
+      @click="$emit('close')"
     >
-        <button
-                class="close-menu-button"
-                @click="$emit('close')"
-        >
-            ×
-        </button>
-        <div class="menu-content">
-            <div
-                    class="menu-item"
-                    :class="{ active: activeMenu === 'news' }"
-                    @click="$emit('set-menu', 'news')"
-            >
-                News
-            </div>
-            <div
-                    class="menu-item"
-                    :class="{ active: activeMenu === 'saved' }"
-                    @click="$emit('set-menu', 'saved')"
-            >
-                Saved Locations
-            </div>
-            <div
-                    class="menu-item"
-                    :class="{ active: activeMenu === 'profile' }"
-                    @click="$emit('set-menu', 'profile')"
-            >
-                Profile
-            </div>
-        </div>
+      ×
+    </button>
+    <div class="menu-content">
+      <div
+        class="menu-item"
+        :class="{ active: activeMenu === 'news' }"
+        @click="$emit('set-menu', 'news')"
+      >
+        News
+      </div>
+      <div
+        class="menu-item"
+        :class="{ active: activeMenu === 'saved' }"
+        @click="$emit('set-menu', 'saved')"
+      >
+        Saved Locations
+      </div>
+      <div
+        class="menu-item"
+        :class="{ active: activeMenu === 'profile' }"
+        @click="$emit('set-menu', 'profile')"
+      >
+        Profile
+      </div>
     </div>
+  </div>
 </template>
 
 <script setup>

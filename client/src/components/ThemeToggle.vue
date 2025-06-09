@@ -10,10 +10,7 @@
 
 <script setup>
 defineProps({
-    isDark: {
-        type: Boolean,
-        required: true
-    }
+    isDark: Boolean
 })
 
 defineEmits(['toggle'])
@@ -22,16 +19,13 @@ defineEmits(['toggle'])
 <style scoped>
 .theme-toggle {
     position: fixed;
-    top: 20px;
+    top: 14px;
     right: 20px;
     z-index: 1001;
     background: none;
     border: none;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     cursor: pointer;
-    padding: 10px;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
+    padding: 0;
 }
 </style>

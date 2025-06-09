@@ -1,45 +1,49 @@
 <template>
-    <div class="forecast-slider">
-        <div class="slider-header">
-            <h3>5-Day Forecast</h3>
-            <div class="slider-controls">
-                <button
-                        class="slider-control"
-                        @click="slideLeft"
-                        :disabled="currentIndex === 0"
-                >
-                    &lt;
-                </button>
-                <button
-                        class="slider-control"
-                        @click="slideRight"
-                        :disabled="currentIndex >= forecast.length - visibleItems"
-                >
-                    &gt;
-                </button>
-            </div>
-        </div>
-        <div class="slider-container">
-            <div
-                    class="slider-track"
-                    :style="{ transform: `translateX(-${currentIndex * (itemWidth + 20)}px)` }"
-            >
-                <div
-                        v-for="(day, index) in forecast"
-                        :key="index"
-                        class="forecast-day"
-                >
-                    <div class="date">{{ formatDate(day.dt * 1000) }}</div>
-                    <img
-                            :src="`https://openweathermap.org/img/wn/${day.weather[0].icon}.png`"
-                            :alt="day.weather[0].description"
-                            class="forecast-icon"
-                    />
-                    <div class="temp">{{ Math.round(day.temp.day) }}°C</div>
-                </div>
-            </div>
-        </div>
+  <div class="forecast-slider">
+    <div class="slider-header">
+      <h3>5-Day Forecast</h3>
+      <div class="slider-controls">
+        <button
+          class="slider-control"
+          :disabled="currentIndex === 0"
+          @click="slideLeft"
+        >
+          &lt;
+        </button>
+        <button
+          class="slider-control"
+          :disabled="currentIndex >= forecast.length - visibleItems"
+          @click="slideRight"
+        >
+          &gt;
+        </button>
+      </div>
     </div>
+    <div class="slider-container">
+      <div
+        class="slider-track"
+        :style="{ transform: `translateX(-${currentIndex * (itemWidth + 20)}px)` }"
+      >
+        <div
+          v-for="(day, index) in forecast"
+          :key="index"
+          class="forecast-day"
+        >
+          <div class="date">
+            {{ formatDate(day.dt * 1000) }}
+          </div>
+          <img
+            :src="`https://openweathermap.org/img/wn/${day.weather[0].icon}.png`"
+            :alt="day.weather[0].description"
+            class="forecast-icon"
+          >
+          <div class="temp">
+            {{ Math.round(day.temp.day) }}°C
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
