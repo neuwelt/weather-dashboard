@@ -351,12 +351,16 @@ function formatDate(dateString) {
     padding: 20px 0;
     max-width: 800px;
     margin: 0 auto;
+    background-color: #F8F5EC;
+    min-height: 100vh;
+    font-family: 'Comfortaa', sans-serif;
 }
 
 .profile-container {
     display: flex;
     flex-direction: column;
     gap: 24px;
+    padding: 20px;
 }
 
 .profile-header {
@@ -364,20 +368,20 @@ function formatDate(dateString) {
     align-items: center;
     gap: 20px;
     padding: 24px;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: #FFFCF7;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .avatar-circle {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2D2D2D;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #FFFCF7;
     font-size: 28px;
     font-weight: 600;
 }
@@ -386,6 +390,7 @@ function formatDate(dateString) {
     margin: 0 0 8px 0;
     font-size: 24px;
     color: #333;
+    font-weight: bold;
 }
 
 .user-info p {
@@ -401,16 +406,17 @@ function formatDate(dateString) {
 }
 
 .action-card {
-    background: white;
-    border-radius: 16px;
+    background: #FFFCF7;
+    border-radius: 10px;
     padding: 24px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .action-card h3 {
     margin: 0 0 20px 0;
     font-size: 20px;
     color: #333;
+    font-weight: bold;
 }
 
 .profile-display {
@@ -424,7 +430,7 @@ function formatDate(dateString) {
     justify-content: space-between;
     align-items: center;
     padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid #F8F5EC;
 }
 
 .info-row:last-of-type {
@@ -441,8 +447,8 @@ function formatDate(dateString) {
 }
 
 .edit-btn {
-    background: #667eea;
-    color: white;
+    background: #2D2D2D;
+    color: #FFFCF7;
     border: none;
     padding: 10px 16px;
     border-radius: 8px;
@@ -453,10 +459,12 @@ function formatDate(dateString) {
     transition: all 0.3s ease;
     align-self: flex-start;
     margin-top: 12px;
+    font-family: 'Comfortaa', sans-serif;
+    font-weight: 500;
 }
 
 .edit-btn:hover {
-    background: #5a67d8;
+    background: #1a1a1a;
 }
 
 .edit-form {
@@ -478,14 +486,17 @@ function formatDate(dateString) {
 
 .form-group input {
     padding: 12px;
-    border: 2px solid #e1e5e9;
+    border: 2px solid #2D2D2D;
     border-radius: 8px;
     font-size: 16px;
+    background-color: #FFFCF7;
+    color: #333;
+    font-family: 'Comfortaa', sans-serif;
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #4A90E2;
 }
 
 .form-buttons {
@@ -499,24 +510,27 @@ function formatDate(dateString) {
     cursor: pointer;
     transition: all 0.3s ease;
     border: none;
+    font-family: 'Comfortaa', sans-serif;
+    font-weight: 500;
 }
 
 .cancel-btn {
-    background: #f0f0f0;
+    background: #F8F5EC;
     color: #333;
+    border: 2px solid #2D2D2D;
 }
 
 .cancel-btn:hover {
-    background: #e0e0e0;
+    background: #f0ede0;
 }
 
 .save-btn {
-    background: #667eea;
-    color: white;
+    background: #2D2D2D;
+    color: #FFFCF7;
 }
 
 .save-btn:hover {
-    background: #5a67d8;
+    background: #1a1a1a;
 }
 
 .stats-grid {
@@ -528,8 +542,8 @@ function formatDate(dateString) {
 .stat-item {
     text-align: center;
     padding: 16px;
-    background: #f8f9fa;
-    border-radius: 12px;
+    background: #F8F5EC;
+    border-radius: 10px;
 }
 
 .stat-number {
@@ -545,7 +559,7 @@ function formatDate(dateString) {
 }
 
 .danger-card {
-    border: 2px solid #fee;
+    border: 2px solid #ff6b6b;
 }
 
 .danger-card h3 {
@@ -567,20 +581,23 @@ function formatDate(dateString) {
     display: flex;
     align-items: center;
     gap: 8px;
+    font-family: 'Comfortaa', sans-serif;
+    font-weight: 500;
 }
 
 .logout-btn {
-    background: #f0f0f0;
+    background: #F8F5EC;
     color: #333;
+    border: 2px solid #2D2D2D;
 }
 
 .logout-btn:hover {
-    background: #e0e0e0;
+    background: #f0ede0;
 }
 
 .delete-btn {
     background: #e53e3e;
-    color: white;
+    color: #FFFCF7;
 }
 
 .delete-btn:hover {
@@ -619,18 +636,19 @@ function formatDate(dateString) {
 }
 
 .modal {
-    background: white;
+    background: #FFFCF7;
     padding: 24px;
-    border-radius: 16px;
+    border-radius: 10px;
     max-width: 400px;
     width: 90%;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .modal h3 {
     margin: 0 0 16px 0;
     font-size: 20px;
     color: #333;
+    font-weight: bold;
 }
 
 .modal p {
@@ -651,12 +669,14 @@ function formatDate(dateString) {
     cursor: pointer;
     transition: all 0.3s ease;
     border: none;
-    background: #667eea;
-    color: white;
+    background: #2D2D2D;
+    color: #FFFCF7;
+    font-family: 'Comfortaa', sans-serif;
+    font-weight: 500;
 }
 
 .confirm-btn:hover {
-    background: #5a67d8;
+    background: #1a1a1a;
 }
 
 .confirm-btn.danger {
@@ -684,4 +704,5 @@ function formatDate(dateString) {
     .form-buttons, .modal-buttons {
         flex-direction: column;
     }
-}</style>
+}
+</style>
