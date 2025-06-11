@@ -40,7 +40,9 @@
       <AppHeader
         :is-menu-open="isMenuOpen"
         @toggle-menu="toggleMenu"
+        @show-profile="showProfile"
       />
+
 
       <!-- Full Screen Menu -->
       <FullScreenMenu
@@ -200,6 +202,13 @@ async function deleteLocation(id) {
 function showLoginPageFunc() {
     showSecondSplash.value = false
     showLoginPageState.value = true
+}
+
+function showProfile() {
+    activeMenu.value = 'profile'
+    if (isMenuOpen.value) {
+        closeMenu()
+    }
 }
 
 function handleLogin() {

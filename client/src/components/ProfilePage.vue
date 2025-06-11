@@ -348,11 +348,10 @@ function formatDate(dateString) {
 
 <style scoped>
 .profile-page {
-    padding: 20px 0;
-    max-width: 800px;
-    margin: 0 auto;
-    background-color: #F8F5EC;
+    padding: 20px;
+    width: 100%;
     min-height: 100vh;
+    background-color: #F8F5EC;
     font-family: 'Comfortaa', sans-serif;
 }
 
@@ -361,7 +360,11 @@ function formatDate(dateString) {
     flex-direction: column;
     gap: 24px;
     padding: 20px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
 }
+
 
 .profile-header {
     display: flex;

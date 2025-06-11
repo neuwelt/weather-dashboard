@@ -1,7 +1,12 @@
 <template>
   <div class="fixed-header">
     <div class="profile-section">
-      Profile
+      <button
+        class="profile-button"
+        @click="$emit('show-profile')"
+      >
+        Profile
+      </button>
     </div>
     <div class="web-name">
       Weather Press
@@ -28,7 +33,7 @@ defineProps({
     }
 })
 
-defineEmits(['toggle-menu'])
+defineEmits(['toggle-menu', 'show-profile'])
 </script>
 
 <style scoped>
@@ -48,10 +53,25 @@ defineEmits(['toggle-menu'])
 }
 
 .profile-section {
+    flex: 1;
+}
+
+.profile-button {
+    background: none;
+    border: none;
     font-weight: 500;
     color: #2D2D2D;
     font-size: 16px;
-    flex: 1;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-family: 'Comfortaa', sans-serif;
+}
+
+.profile-button:hover {
+    background-color: rgba(45, 45, 45, 0.1);
+    color: #1a1a1a;
 }
 
 .web-name {
@@ -81,7 +101,6 @@ defineEmits(['toggle-menu'])
     justify-content: space-around;
     z-index: 1003;
     position: relative;
-
     margin-right: 50px;
 }
 
@@ -109,4 +128,5 @@ defineEmits(['toggle-menu'])
 
 .menu-button.menu-active span:nth-child(3) {
     transform: rotate(-45deg) translate(6px, -6px);
-}</style>
+}
+</style>
